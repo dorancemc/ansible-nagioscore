@@ -1,0 +1,46 @@
+---
+
+- name: set timezone
+  timezone:
+    name: "{{ time_zone }}"
+
+- name: set OS dependent variables
+  include_vars: '{{ item }}'
+  with_first_found:
+    - '{{ ansible_facts.distribution }}_{{ ansible_facts.distribution_major_version }}.yaml'
+    - '{{ ansible_facts.distribution }}.yaml'
+    - '{{ ansible_facts.os_family }}_{{ ansible_facts.distribution_major_version }}.yaml'
+    - '{{ ansible_facts.os_family }}.yaml'
+  tags: 
+    - apache_config
+    - nagios_config
+    - nrdp_config
+
+- name: set OS dependent tasks
+  include: '{{ item }}'
+  with_first_found:
+    - '{{ ansible_facts.distribution }}_{{ ansible_facts.distribution_major_version }}.yaml'
+    - '{{ ansible_facts.distribution }}.yaml'
+    - '{{ ansible_facts.os_family }}_{{ ansible_facts.distribution_major_version }}.yaml'
+    - '{{ ansible_facts.os_family }}.yaml'
+
+- include: network.yaml
+
+- include: postfix.yaml
+
+- include: apache.yaml 
+  tags: 
+    - apache_config
+
+- include: nagios.yaml
+
+- include: nagios_nrdp.yaml
+  when: install_nrdp
+
+- include: pnp4nagios.yaml
+  when: install_pnp4nagios
+
+- include: nagios_config.yaml
+  tags: 
+    - nagios_config
+

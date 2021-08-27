@@ -1,0 +1,21 @@
+#https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/3/en/objectdefinitions.html#contact
+---
+contacts:
+  nagiosadmin:
+    alias: Nagios Admin
+    use: none-notifications
+    password: "{{ nagiosadmin_password }}"
+    contactgroups: admins
+  rouser@gmail.com: #user and email as defined equal
+    alias: ReadOnly User
+    use: generic-contact
+    contactgroups: agents
+    password: "{{ rouser_password }}"
+  deluser:
+    alias: User2Delete
+    state: absent
+
+contactgroup:
+  admins:
+    alias: Nagios Admins
+  agents: []

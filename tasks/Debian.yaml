@@ -1,0 +1,37 @@
+---
+
+- name: apt update cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 86400 #One day
+
+- name: Install postfix and dependencies
+  apt:
+    name: ['postfix']
+    state: present
+  become: true
+
+- name: Install HTTPD and OpenSSL
+  apt:
+    name: ['apache2', 'apache2-utils', 'openssl']
+    state: present
+
+- name: Install nagios core packages
+  apt:
+    name: ['nagios4']
+    state: present
+
+- name: Install nagios plugins
+  apt:
+    name: "{{ nrpe_packages }}"
+    state: present
+
+- name: Install essential packages
+  apt:
+    name: "{{ essential_packages }}"
+    state: present
+
+- name: Install rrdtool and dependencies
+  apt:
+    name: "{{ rrdtool_packages }}"
+    state: present

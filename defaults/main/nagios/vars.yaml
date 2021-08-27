@@ -1,0 +1,14 @@
+---
+
+# nagios_clients_path: inventory/nagios_clients
+nagios_clean_assets: false # if you has deleted one server, then you need to put here true to clean all files in assets folder and delete the hosts not defined 
+
+nagios_hostgroups: #[]
+  local: []
+  cloud: []
+
+nagios_servicegroups: #[]
+  localresources: []
+
+install_pnp4nagios: true
+install_nrdp: true

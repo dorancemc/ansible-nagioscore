@@ -1,0 +1,12 @@
+---
+
+- name: update user to htpasswd file {{ _contact }}
+  htpasswd:
+    path: "{{ nagios.passwd_file }}"
+    name: "{{ _contact }}"
+    password: "{{ contacts[_contact]['password'] | default(lookup('password', '/dev/null length=15 chars=ascii_letters')) }}"
+    state: "{{ contacts[_contact]['state'] | default('present') }}"
+    owner: root
+    group: "{{ apache.group }}"
+    mode: 0640
+  no_log: yes

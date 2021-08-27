@@ -1,0 +1,13 @@
+---
+
+- name: ipv4 on postfix
+  replace:
+    path: /etc/postfix/main.cf
+    regexp: '^inet_protocols = all'
+    replace: 'inet_protocols = ipv4'
+
+- name: Start service postfix, if not started
+  service:
+    name: postfix
+    state: started
+    enabled: yes

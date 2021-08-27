@@ -1,0 +1,12 @@
+---
+
+- name: include vars for {{ item }}
+  include_vars: "inventory/nagios_clients/{{ item }}.yml"
+  when: _nagios_clients is defined
+
+- name: create host definition {{ _host.name }}
+  template:
+    src: "nagios/etc/assets/host_definition.cfg"
+    dest: "{{ tempfolder.path }}/config/assets/{{ _host.name }}.cfg"
+    mode: 0644
+

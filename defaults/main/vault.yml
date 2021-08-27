@@ -1,0 +1,4 @@
+nagiosadmin_password: changeme
+rouser_password: changeme
+nrdp_mysecrettoken: mysecrettoken
+nrdp_myothertoken: myothertoken

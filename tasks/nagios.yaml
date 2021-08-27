@@ -1,0 +1,50 @@
+---
+- name: reload nagios
+  service:
+    name: '{{ nagios.service_name }}'
+    state: started
+    enabled: yes
+
+- name: add users to htpasswd file
+  include: "nagios_httpasswd.yaml"
+  with_items: "{{ contacts }}"
+  loop_control:
+    loop_var: _contact
+  no_log: yes
+
+- name: create folder
+  file:
+    state: directory
+    path: "{{ nagios.var_spool_path }}/checkresults"
+    owner: "{{ nagios.user }}"
+    group: "{{ nagios.group }}"
+    mode: '0750'
+
+- name: create resource config
+  template:
+    src: nagios/etc/resource.cfg
+    dest: "{{ nagios.etc_path }}/resource.cfg"
+    owner: "{{ nagios.user }}"
+    group: "{{ nagios.group }}"
+    mode: 0600
+
+- name: create nagios config
+  template:
+    src: nagios/etc/{{ item }}
+    dest: "{{ nagios.etc_path }}/{{ item }}"
+    backup: yes
+    mode: 0644
+  notify: reload nagios
+  with_items:
+    - nagios.cfg
+    - cgi.cfg
+
+- name: assets folder creation
+  file:
+    path: "{{ nagios.etc_path }}/config/{{ item }}"
+    state: directory
+    owner: "{{ nagios.user }}"
+    group: "{{ nagios.group }}"
+    mode: 0750
+  with_items:
+      - ["assets","templates"]

@@ -1,0 +1,69 @@
+---
+
+## apache files
+- name: creating index.html file
+  copy:
+    content:  |
+              <head>
+              <meta http-equiv="REFRESH" content="0; url={{ nagios.url_path }}">
+              </head>
+    dest: "{{ base_html_path }}/index.html"
+    mode: 0644
+
+- name: nagios configuration apache file
+  template : 
+    src: "{{ ansible_facts.os_family }}/httpd/{{ apache.config_file }}"
+    dest: "{{ apache.sites_folder }}/{{ apache.config_file }}"
+    mode: 0644
+  notify: restart apache
+
+## ssl configuration
+- name: certificate key file
+  copy:
+    src: "{{ digitalcertificate.source_path }}/{{ digitalcertificate.key }}"
+    dest: "{{ apache.key_path }}/{{ digitalcertificate.key }}"
+    owner: root
+    group: root
+    mode: 0600
+  notify: restart apache
+
+- name: certificate crt file
+  copy:
+    src: "{{ digitalcertificate.source_path }}/{{ digitalcertificate.file }}"
+    dest: "{{ apache.crt_path }}/{{ digitalcertificate.file }}"
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart apache
+
+- name: apache ssl configuration
+  template: 
+    src: "{{ ansible_facts.os_family }}/httpd/{{ apache.config_ssl_file }}"
+    dest: "{{ apache.config_ssl_folder }}/{{ apache.config_ssl_file }}"
+    mode: 0644
+  notify: restart apache
+
+- name: apache default configuration
+  template: 
+    src: "{{ ansible_facts.os_family }}/httpd/{{ apache.default_file }}"
+    dest: "{{ apache.config_ssl_folder }}/{{ apache.default_file }}"
+    mode: 0644
+  notify: restart apache
+
+- name: Enable the Apache2 modules
+  apache2_module:
+    state: present
+    name: "{{ item }}"
+    ignore_configcheck: yes
+  register: output
+  notify: restart apache
+  failed_when: >
+      output.stderr is defined and 
+      ((output.stderr != '') or
+      (output.rc > 0))
+  with_items:
+    - ssl
+    - rewrite
+    # - auth_digest
+    # - authz_groupfile
+  when: ansible_facts.os_family == 'Debian'

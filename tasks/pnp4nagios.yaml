@@ -1,0 +1,90 @@
+---
+
+###########
+# source: https://www.centlinux.com/2016/09/install-pnp4nagios-nagios-core-centos-7.html
+
+- name: pnp4nagios folder creation
+  file:
+    path: /root/pnp4nagios
+    state: directory
+    mode: 0644
+
+- name: creates pnp4nagios
+  unarchive:
+    src: https://downloads.sourceforge.net/project/pnp4nagios/PNP-0.6/pnp4nagios-0.6.26.tar.gz
+    dest: /root/pnp4nagios/
+    remote_src: yes
+    creates: /root/pnp4nagios/pnp4nagios-0.6.26
+
+- name: makes pnp4nagios
+  command: chdir=/root/pnp4nagios/pnp4nagios-0.6.26 {{ item }}
+  with_items:
+  - ./configure
+  - make all
+  - make fullinstall
+  args:
+    creates: /etc/httpd/conf.d/pnp4nagios.conf
+
+- name: nagios configuration apache file
+  template : 
+    src: pnp4nagios/pnp4nagios.conf
+    dest: "{{ apache.sites_folder }}/pnp4nagios.conf"
+    mode: 0644
+  notify: restart apache
+
+- name: stat install.php pnp4nagios
+  stat: 
+    path: /usr/local/pnp4nagios/share/install.php
+  register: pnp4nagios_install_stat
+
+# comment these 3 lines to validate the pnp4nagios installation
+- name: Move foo to bar
+  command: mv /usr/local/pnp4nagios/share/install.php /usr/local/pnp4nagios/share/install.old
+  when: pnp4nagios_install_stat.stat.exists
+
+# npcd issues: these commands needs to check after pnp4nagios updates
+# https://stackoverflow.com/questions/50077503/npcd-error-executed-command-exits-with-return-code-255 :
+#   sed -i 's:my \$t1;:my @t1=();\n    my $t1=\\\@t1;:' /usr/local/pnp4nagios/libexec/process_perfdata.pl
+- name: issues on process_perfdata.pl file
+  replace:
+    path: /usr/local/pnp4nagios/libexec/process_perfdata.pl
+    regexp: 'my \$t1;'
+    replace: 'my @t1=();\n    my $t1=\\@t1;'
+
+# https://github.com/lingej/pnp4nagios/issues/148 :
+#   sed -i 's:if(sizeof(\$pages:if(is_array(\$pages) \&\& sizeof(\$pages:' /usr/local/pnp4nagios/share/application/models/data.php
+- name: issues on data.php file
+  replace:
+    path: /usr/local/pnp4nagios/share/application/models/data.php
+    regexp: 'if\(sizeof\(\$pages'
+    replace: 'if(is_array($pages) && sizeof($pages'
+
+# https://forum.checkmk.com/t/services-json-has-a-deprecated-constructor-centos8-fresh-install-with-1-6-0p6/14957/7
+#   sed -i 's:function Services_JSON(:function _construct(:' /usr/local/pnp4nagios/share/application/lib/json.php
+#   sed -i 's:function Services_JSON_Error(:function _construct(:' /usr/local/pnp4nagios/share/application/lib/json.php
+- name: issues on json.php file
+  replace:
+    path: /usr/local/pnp4nagios/share/application/lib/json.php
+    regexp: 'function Services_JSON\('
+    replace: 'function _construct('
+
+- name: issues on json.php file
+  replace:
+    path: /usr/local/pnp4nagios/share/application/lib/json.php
+    regexp: 'function Services_JSON_Error\('
+    replace: 'function _construct('
+
+- name: issues on Input.php file with php7
+  lineinfile:
+    path: /usr/local/pnp4nagios/lib/kohana/system/libraries/Input.php
+    regexp: '(.*_magic_quotes_.*)'
+    state: absent
+    backup: yes
+  when: ansible_facts.os_family == 'Debian'
+
+- name: pnp4nagios configuration file
+  template : 
+    src: pnp4nagios/npcd.cfg 
+    dest: /usr/local/pnp4nagios/etc/npcd.cfg
+    mode: 0644
+  notify: restart npcd

@@ -1,0 +1,179 @@
+---
+
+- name: add hosts to host_definitions
+  set_fact:
+    nagios_host_definition: "{{ nagios_host_definition + [item] }}"
+  with_items: "{{ nagios_clients }}"
+
+- name: create temporary directory
+  tempfile:
+    state: directory
+    suffix: nagios
+  register: tempfolder
+  changed_when: false
+
+- name: assets folder creation
+  file:
+    path: "{{ tempfolder.path }}/config/{{ item }}"
+    state: directory
+    owner: "{{ nagios.user }}"
+    group: "{{ nagios.group }}"
+    mode: 0750
+  with_items:
+      - ["assets","templates"]
+  changed_when: false
+
+- name: change tempfile ownership
+  ansible.builtin.file:
+    path: "{{ tempfolder.path }}"
+    owner: "{{ nagios.user }}"
+    group: "{{ nagios.group }}"
+  changed_when: false
+
+- name: files synchronization to temp folder
+  synchronize:
+    src: "{{ nagios.etc_path }}/{{ item }}"
+    dest:  "{{ tempfolder.path }}/{{ item }}"
+    owner: yes
+    group: yes
+    perms: yes
+  delegate_to: "{{ inventory_hostname }}"
+  with_items:
+    - config/
+    - nagios.cfg
+    - resource.cfg
+  changed_when: false
+  when: not nagios_clean_assets
+
+- name: update resource config
+  template:
+    src: nagios/etc/{{ item }}
+    dest: "{{ tempfolder.path }}/{{ item }}"
+    mode: 0600
+  with_items:
+    - resource.cfg
+  register: resourcecfg
+
+- name: update nagios config
+  template:
+    src: nagios/etc/{{ item }}
+    dest: "{{ tempfolder.path }}/{{ item }}"
+    mode: 0644
+  with_items:
+    - nagios.cfg
+  register: nagioscfg
+
+- name: modify temp path for nagios.cfg file
+  replace:
+    path: "{{ tempfolder.path }}/nagios.cfg"
+    regexp: '{{ nagios.etc_path }}'
+    replace: '{{ tempfolder.path }}'
+  changed_when: false
+
+#templates
+- name: create nagios templates config
+  template:
+    src: "nagios/etc/templates/{{ item }}"
+    dest: "{{ tempfolder.path }}/config/templates/{{ item }}"
+    mode: 0644
+  with_items:
+    - commands.cfg
+    - contact_templates.cfg
+    - host_templates.cfg
+    - service_templates.cfg
+    - time_templates.cfg
+
+- name: create assets config
+  template:
+    src: "nagios/etc/assets/{{ item }}"
+    dest: "{{ tempfolder.path }}/config/assets/{{ item }}"
+    mode: 0644
+  with_items:
+    - contacts.cfg
+    - groups_definition.cfg
+
+- name: create assets config
+  include: "host_definition.yaml"
+  with_items: "{{ nagios_host_definition }}"
+  loop_control:
+    loop_var: _host
+  no_log: yes
+
+- name: list clients config
+  set_fact:
+    _nagios_clients_file: "{{ _nagios_clients_file|default([]) + [item] }}"
+  with_fileglob: 
+    - "inventory/nagios_clients/*.yml"
+  when: nagios_clients_path is defined
+
+- name: list clients config
+  set_fact:
+    _nagios_clients: "{{ _nagios_clients|default([]) + [item|basename|splitext|first] }}"
+  with_items: 
+    - "{{ _nagios_clients_file }}"
+  when: _nagios_clients_file is defined and _nagios_clients_file|length>0
+
+- name: create assets config
+  include: "host_definition.yaml"
+  with_items: "{{ _nagios_clients }}"
+  when: _nagios_clients is defined
+
+#validations
+- name: run command checking nagios config
+  shell: "{{ nagios.command }} -v {{ tempfolder.path }}/nagios.cfg"
+  register: ps
+  ignore_errors: yes
+  changed_when: false
+
+- debug: 
+    msg: "{{ ps.stdout_lines }}"
+
+- name: update users to htpasswd file
+  include: "nagios_httpasswd.yaml"
+  with_items: "{{ contacts }}"
+  loop_control:
+    loop_var: _contact
+  no_log: yes
+  when: ps.rc == 0
+
+- name: update resource config
+  template:
+    src: nagios/etc/{{ item }}
+    dest: "{{ nagios.etc_path }}/{{ item }}"
+    mode: 0600
+  with_items:
+    - resource.cfg
+  when: resourcecfg.changed and ps.rc == 0
+  notify: reload nagios
+
+- name: update nagios config
+  template:
+    src: nagios/etc/{{ item }}
+    dest: "{{ nagios.etc_path }}/{{ item }}"
+    mode: 0644
+  with_items:
+    - nagios.cfg
+  when: nagioscfg.changed and ps.rc == 0
+  notify: reload nagios
+
+- name: files synchronization to config folder
+  synchronize:
+    src:  "{{ tempfolder.path }}/{{ item }}"
+    dest: "{{ nagios.etc_path }}/{{ item }}"
+    owner: yes
+    group: yes
+    perms: yes
+    delete: yes
+    recursive: yes
+  delegate_to: "{{ inventory_hostname }}"
+  with_items:
+    - config/
+  when: ps.rc == 0
+  notify: reload nagios
+
+- name: remove temp folder
+  file:
+    path: "{{ tempfolder.path }}"
+    state: absent
+  when: tempfolder.path is defined and ps.rc == 0
+  changed_when: false

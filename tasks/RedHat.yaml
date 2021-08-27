@@ -1,0 +1,49 @@
+---
+
+- name: dnf update cache
+  dnf:
+    autoremove: yes
+    update_cache: yes
+
+- name: installing epel repo
+  dnf:
+    name: oracle-epel-release-el8
+    state: installed
+  when: ansible_facts.distribution == 'OracleLinux'
+
+- name: Install postfix and dependencies
+  dnf:
+    name: ['postfix']
+    state: present
+
+- name: Install HTTPD and OpenSSL
+  dnf:
+    name: ['httpd', 'php-fpm', 'httpd-tools', 'mod_ssl', 'openssl']
+    state: present
+
+- name: Make sure php-fpm service unit is running and enabled
+  systemd:
+    state: started
+    enabled: yes
+    name: php-fpm
+
+- name: Install nagios core packages
+  dnf:
+    name: ['nagios']
+    state: present
+
+- name: Install nagios plugins
+  dnf:
+    name: "{{ nrpe_packages }}"
+    state: present
+    enablerepo: PowerTools
+
+- name: Install essential packages
+  dnf:
+    name: "{{ essential_packages }}"
+    state: present
+
+- name: Install rrdtool and dependencies
+  dnf:
+    name: "{{ rrdtool_packages }}"
+    state: present
