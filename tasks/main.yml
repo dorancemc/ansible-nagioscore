@@ -43,4 +43,3 @@
 - include: nagios_config.yaml
   tags:
     - nagios_config
-

@@ -46,7 +46,7 @@
   when: not nrdppath.stat.exists or nrdp_force_reinstall
 
 - name: nrdp php configuration file
-  template :
+  template:
     src: nrdp/config.inc.php
     dest: /usr/local/nrdp/server/config.inc.php
     mode: 0644
@@ -62,7 +62,7 @@
   tags: nrdp_config
 
 - name: nrdp configuration apache file
-  template :
+  template:
     src: nrdp/nrdp.conf
     dest: "{{ apache.sites_folder }}/nrdp.conf"
     mode: 0644

@@ -11,5 +11,5 @@ galaxy_info:
   - name: Ubuntu
     versions:
     - focal
-  galaxy_tags: [nagios,monitoring,linux]
+  galaxy_tags: [nagios, monitoring, linux]
 dependencies: []

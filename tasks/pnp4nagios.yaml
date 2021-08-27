@@ -26,7 +26,7 @@
     creates: /etc/httpd/conf.d/pnp4nagios.conf
 
 - name: nagios configuration apache file
-  template :
+  template:
     src: pnp4nagios/pnp4nagios.conf
     dest: "{{ apache.sites_folder }}/pnp4nagios.conf"
     mode: 0644
@@ -43,7 +43,7 @@
   when: pnp4nagios_install_stat.stat.exists
 
 # npcd issues: these commands needs to check after pnp4nagios updates
-# https://stackoverflow.com/questions/50077503/npcd-error-executed-command-exits-with-return-code-255 :
+# https://stackoverflow.com/questions/50077503/npcd-error-executed-command-exits-with-return-code-255:
 #   sed -i 's:my \$t1;:my @t1=();\n    my $t1=\\\@t1;:' /usr/local/pnp4nagios/libexec/process_perfdata.pl
 - name: issues on process_perfdata.pl file
   replace:
@@ -51,7 +51,7 @@
     regexp: 'my \$t1;'
     replace: 'my @t1=();\n    my $t1=\\@t1;'
 
-# https://github.com/lingej/pnp4nagios/issues/148 :
+# https://github.com/lingej/pnp4nagios/issues/148:
 #   sed -i 's:if(sizeof(\$pages:if(is_array(\$pages) \&\& sizeof(\$pages:' /usr/local/pnp4nagios/share/application/models/data.php
 - name: issues on data.php file
   replace:
@@ -83,7 +83,7 @@
   when: ansible_facts.os_family == 'Debian'
 
 - name: pnp4nagios configuration file
-  template :
+  template:
     src: pnp4nagios/npcd.cfg
     dest: /usr/local/pnp4nagios/etc/npcd.cfg
     mode: 0644

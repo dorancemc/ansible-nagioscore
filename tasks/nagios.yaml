@@ -47,4 +47,4 @@
     group: "{{ nagios.group }}"
     mode: 0750
   with_items:
-      - ["assets","templates"]
+      - ["assets", "templates"]

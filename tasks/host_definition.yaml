@@ -9,4 +9,3 @@
     src: "nagios/etc/assets/host_definition.cfg"
     dest: "{{ tempfolder.path }}/config/assets/{{ _host.name }}.cfg"
     mode: 0644
-

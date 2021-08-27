@@ -20,7 +20,7 @@
     group: "{{ nagios.group }}"
     mode: 0750
   with_items:
-      - ["assets","templates"]
+      - ["assets", "templates"]
   changed_when: false
 
 - name: change tempfile ownership
