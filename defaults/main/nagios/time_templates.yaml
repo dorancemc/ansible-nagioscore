@@ -1,4 +1,4 @@
-#https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/3/en/objectdefinitions.html#timeperiod
+# https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/3/en/objectdefinitions.html#timeperiod
 ---
 nagios_timeperiods:
   - name: 24x7

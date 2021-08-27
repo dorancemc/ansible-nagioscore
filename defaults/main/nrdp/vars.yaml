@@ -1,4 +1,4 @@
-#https://github.com/NagiosEnterprises/nrdp/blob/master/README.md
+# https://github.com/NagiosEnterprises/nrdp/blob/master/README.md
 ---
 nrdp_config_php:
   authorized_tokens: #[]
@@ -15,7 +15,7 @@ nrdp_config_php:
   valid_basic_auth_users:
     - nagiosadmin
   nagios_command_group: "{{ nagios.command_group}}"
-  command_file: "{{ nagios_config_parameters.command_file }}" 
+  command_file: "{{ nagios_config_parameters.command_file }}"
   check_results_dir: "{{ nagios_config_parameters.check_result_path }}"
   disable_external_commands: true
   allow_old_results: false

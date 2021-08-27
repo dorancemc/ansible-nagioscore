@@ -1,17 +1,17 @@
-#https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/4/en/objectdefinitions.html#command
+# https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/4/en/objectdefinitions.html#command
 ---
 nagios_commands_definition:
   check_nrpe: $USER1$/check_nrpe -H $HOSTADDRESS$ -2 -c $ARG1$ $ARG2$
-  #notifications
+  # notifications
   notificacion_host_x_correo: '/usr/bin/printf "%b" "***** Notificacion de host *****\n\nTipo de notificacion: $NOTIFICATIONTYPE$\nHost: $HOSTNAME$\nEstado: $HOSTSTATE$\nIP: $HOSTADDRESS$\nInfo: $HOSTOUTPUT$\nFecha/Hora: $LONGDATETIME$\n\nInformacion Adicional:\nhttp://{{ inventory_hostname }}/{{ nagios.url_path }}/cgi-bin/status.cgi?host=$HOSTNAME$\n$NOTIFICATIONCOMMENT$" | /usr/bin/mail -r $ADMINEMAIL$ -s "** $NOTIFICATIONTYPE$ Estado de host: $HOSTNAME$ = $HOSTSTATE$ **" $CONTACTEMAIL$'
   notificacion_de_servicio_x_correo: '/usr/bin/printf "%b" "***** Notificacion de servicio *****\n\nTipo de notificacion: $NOTIFICATIONTYPE$\n\nServicio: $SERVICEDESC$\nHost: $HOSTALIAS$\nIP: $HOSTADDRESS$\nEstado del servicio: $SERVICESTATE$\nFecha/Hora: $LONGDATETIME$\n\nInformacion Adicional:\n$SERVICEOUTPUT$\nhttp://{{ inventory_hostname }}/{{ nagios.url_path }}/cgi-bin/extinfo.cgi?type=2&host=$HOSTNAME$&service=$SERVICEDESC$\n\n$NOTIFICATIONCOMMENT$" | /usr/bin/mail -r $ADMINEMAIL$ -s "** $NOTIFICATIONTYPE$ Alerta de servicio: $HOSTALIAS$/$SERVICEDESC$ = $SERVICESTATE$ **" $CONTACTEMAIL$'
   notify_host_by_email: '/usr/bin/printf "%b" "***** Nagios *****\n\nNotification Type: $NOTIFICATIONTYPE$\nHost: $HOSTNAME$\nState: $HOSTSTATE$\nAddress: $HOSTADDRESS$\nInfo: $HOSTOUTPUT$\n\nDate/Time: $LONGDATETIME$\n" | /usr/bin/mail -s "** $NOTIFICATIONTYPE$ Host Alert: $HOSTNAME$ is $HOSTSTATE$ **" $CONTACTEMAIL$'
   notify_service_by_email: '/usr/bin/printf "%b" "***** Nagios *****\n\nNotification Type: $NOTIFICATIONTYPE$\n\nService: $SERVICEDESC$\nHost: $HOSTALIAS$\nAddress: $HOSTADDRESS$\nState: $SERVICESTATE$\n\nDate/Time: $LONGDATETIME$\n\nAdditional Info:\n\n$SERVICEOUTPUT$\n" | /usr/bin/mail -s "** $NOTIFICATIONTYPE$ Service Alert: $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **" $CONTACTEMAIL$'
-  #hosts
+  # hosts
   check_host_alive: $USER1$/check_ping -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 5
   check_http_alive: $USER1$/check_http -H $HOSTADDRESS$
   check_https_alive: $USER1$/check_http -H $HOSTADDRESS$ --ssl
-  #general commands
+  # general commands
   check_ftp: $USER1$/check_ftp -H $HOSTADDRESS$ $ARG1$
   check_hpjd: $USER1$/check_hpjd -H $HOSTADDRESS$ $ARG1$
   check_snmp: $USER1$/check_snmp -H $HOSTADDRESS$ $ARG1$
@@ -31,9 +31,9 @@ nagios_commands_definition:
   # commands for performance data
   process_service_perfdata_file: /bin/mv /usr/local/pnp4nagios/var/service-perfdata /usr/local/pnp4nagios/var/spool/service-perfdata.$TIMET$
   process_host_perfdata_file: /bin/mv /usr/local/pnp4nagios/var/host-perfdata /usr/local/pnp4nagios/var/spool/host-perfdata.$TIMET$
-  #local commands
+  # local commands
   check_local_disk: $USER1$/check_disk -w $ARG1$ -c $ARG2$ -p $ARG3$
   check_local_load: $USER1$/check_load -w $ARG1$ -c $ARG2$
   check_local_procs: $USER1$/check_procs -w $ARG1$ -c $ARG2$ -s $ARG3$
   check_local_users: $USER1$/check_users -w $ARG1$ -c $ARG2$
-  check_local_mrtgtraf: $USER1$/check_mrtgtraf -F $ARG1$ -a $ARG2$ -w $ARG3$ -c $ARG4$ -e $ARG5$ 
+  check_local_mrtgtraf: $USER1$/check_mrtgtraf -F $ARG1$ -a $ARG2$ -w $ARG3$ -c $ARG4$ -e $ARG5$

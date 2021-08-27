@@ -1,4 +1,4 @@
-#https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/4/en/configmain.html
+# https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/4/en/configmain.html
 ---
 nagios_config_parameters:
   accept_passive_host_checks: 1
@@ -14,8 +14,8 @@ nagios_config_parameters:
   cached_host_check_horizon: 15
   cached_service_check_horizon: 15
   cfg_dir:
-     - "{{ nagios.etc_path }}/config/assets"
-     - "{{ nagios.etc_path }}/config/templates"
+    - "{{ nagios.etc_path }}/config/assets"
+    - "{{ nagios.etc_path }}/config/templates"
   # cfg_dir:
   #    - "/etc/nagios-plugins/config" #OnlyDebian
   # cfg_file:
@@ -116,7 +116,7 @@ nagios_config_parameters:
   use_retained_scheduling_info: 1
   use_syslog: 1
   use_true_regexp_matching: 0
-  ##performance_data
+  # performance_data
   process_performance_data: 1
   service_perfdata_file: /usr/local/pnp4nagios/var/service-perfdata
   service_perfdata_file_template: DATATYPE::SERVICEPERFDATA\tTIMET::$TIMET$\tHOSTNAME::$HOSTNAME$\tSERVICEDESC::$SERVICEDESC$\tSERVICEPERFDATA::$SERVICEPERFDATA$\tSERVICECHECKCOMMAND::$SERVICECHECKCOMMAND$\tHOSTSTATE::$HOSTSTATE$\tHOSTSTATETYPE::$HOSTSTATETYPE$\tSERVICESTATE::$SERVICESTATE$\tSERVICESTATETYPE::$SERVICESTATETYPE$
@@ -128,4 +128,4 @@ nagios_config_parameters:
   host_perfdata_file_mode: a
   host_perfdata_file_processing_interval: 15
   host_perfdata_file_processing_command: process_host_perfdata_file
-  #
+  # performance_data

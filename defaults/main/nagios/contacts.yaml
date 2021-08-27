@@ -1,4 +1,4 @@
-#https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/3/en/objectdefinitions.html#contact
+# https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/3/en/objectdefinitions.html#contact
 ---
 contacts:
   nagiosadmin:
@@ -6,7 +6,7 @@ contacts:
     use: none-notifications
     password: "{{ nagiosadmin_password }}"
     contactgroups: admins
-  rouser@gmail.com: #user and email as defined equal
+  rouser@gmail.com:  # user and email as defined equal
     alias: ReadOnly User
     use: generic-contact
     contactgroups: agents

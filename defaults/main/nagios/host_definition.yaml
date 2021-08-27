@@ -1,4 +1,4 @@
-#https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/4/en/objectdefinitions.html#host
+# https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/4/en/objectdefinitions.html#host
 ---
 nagios_host_definition:
   - name: localhost
@@ -12,7 +12,7 @@ nagios_host_definition:
       http: check_http
       # total_processes: check_local_procs!250!400!RSZDT
       # current_load: check_local_load!5.0,4.0,3.0!10.0,6.0,4.0
-      total_processes: 
+      total_processes:
         servicegroups: localresources
         use: generic-service
         check_command: check_local_procs!250!400!RSZDT
@@ -20,4 +20,3 @@ nagios_host_definition:
         servicegroups: localresources
         use: generic-service
         check_command: check_local_load!5.0,4.0,3.0!10.0,6.0,4.0
-

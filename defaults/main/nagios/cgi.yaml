@@ -1,4 +1,4 @@
-#https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/4/en/configcgi.html
+# https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/4/en/configcgi.html
 ---
 nagios_cgi_parameters:
   action_url_target: _blank
