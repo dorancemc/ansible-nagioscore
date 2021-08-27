@@ -11,7 +11,7 @@
     - '{{ ansible_facts.distribution }}.yaml'
     - '{{ ansible_facts.os_family }}_{{ ansible_facts.distribution_major_version }}.yaml'
     - '{{ ansible_facts.os_family }}.yaml'
-  tags: 
+  tags:
     - apache_config
     - nagios_config
     - nrdp_config
@@ -29,7 +29,7 @@
 - include: postfix.yaml
 
 - include: apache.yaml 
-  tags: 
+  tags:
     - apache_config
 
 - include: nagios.yaml
@@ -41,6 +41,6 @@
   when: install_pnp4nagios
 
 - include: nagios_config.yaml
-  tags: 
+  tags:
     - nagios_config
 

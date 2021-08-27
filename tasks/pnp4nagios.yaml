@@ -26,14 +26,14 @@
     creates: /etc/httpd/conf.d/pnp4nagios.conf
 
 - name: nagios configuration apache file
-  template : 
+  template :
     src: pnp4nagios/pnp4nagios.conf
     dest: "{{ apache.sites_folder }}/pnp4nagios.conf"
     mode: 0644
   notify: restart apache
 
 - name: stat install.php pnp4nagios
-  stat: 
+  stat:
     path: /usr/local/pnp4nagios/share/install.php
   register: pnp4nagios_install_stat
 
@@ -83,8 +83,8 @@
   when: ansible_facts.os_family == 'Debian'
 
 - name: pnp4nagios configuration file
-  template : 
-    src: pnp4nagios/npcd.cfg 
+  template :
+    src: pnp4nagios/npcd.cfg
     dest: /usr/local/pnp4nagios/etc/npcd.cfg
     mode: 0644
   notify: restart npcd

@@ -102,14 +102,14 @@
 - name: list clients config
   set_fact:
     _nagios_clients_file: "{{ _nagios_clients_file|default([]) + [item] }}"
-  with_fileglob: 
+  with_fileglob:
     - "inventory/nagios_clients/*.yml"
   when: nagios_clients_path is defined
 
 - name: list clients config
   set_fact:
     _nagios_clients: "{{ _nagios_clients|default([]) + [item|basename|splitext|first] }}"
-  with_items: 
+  with_items:
     - "{{ _nagios_clients_file }}"
   when: _nagios_clients_file is defined and _nagios_clients_file|length>0
 
@@ -125,7 +125,7 @@
   ignore_errors: yes
   changed_when: false
 
-- debug: 
+- debug:
     msg: "{{ ps.stdout_lines }}"
 
 - name: update users to htpasswd file

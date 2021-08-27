@@ -1,6 +1,5 @@
 ---
 
-## apache files
 - name: creating index.html file
   copy:
     content:  |
@@ -11,7 +10,7 @@
     mode: 0644
 
 - name: nagios configuration apache file
-  template : 
+  template:
     src: "{{ ansible_facts.os_family }}/httpd/{{ apache.config_file }}"
     dest: "{{ apache.sites_folder }}/{{ apache.config_file }}"
     mode: 0644
@@ -37,14 +36,14 @@
   notify: restart apache
 
 - name: apache ssl configuration
-  template: 
+  template:
     src: "{{ ansible_facts.os_family }}/httpd/{{ apache.config_ssl_file }}"
     dest: "{{ apache.config_ssl_folder }}/{{ apache.config_ssl_file }}"
     mode: 0644
   notify: restart apache
 
 - name: apache default configuration
-  template: 
+  template:
     src: "{{ ansible_facts.os_family }}/httpd/{{ apache.default_file }}"
     dest: "{{ apache.config_ssl_folder }}/{{ apache.default_file }}"
     mode: 0644
@@ -58,9 +57,9 @@
   register: output
   notify: restart apache
   failed_when: >
-      output.stderr is defined and 
-      ((output.stderr != '') or
-      (output.rc > 0))
+      output.stderr is defined and
+      ((output.stderr|length>0) or
+      (output.rc>0))
   with_items:
     - ssl
     - rewrite
