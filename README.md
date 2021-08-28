@@ -87,6 +87,29 @@ If you want to apply only the configuration just apply the `nagios_config` tag
 ansible-playbook --limit ubuntu playbook.yaml --tags nagios_config
 ```
 
+Grafana
+-------
+
+This deploy support integration with grafana. After deploy you can install grafana manually  
+and follow this instructions to complete the integration.  
+https://support.nagios.com/kb/article/nagios-core-using-grafana-with-pnp4nagios-803.html#Grafana_Config
+
+Or use the ansible recipe and configure these variables to complete the integration.   
+https://github.com/cloudalchemy/ansible-grafana
+
+```yaml
+grafana_plugins:
+  - sni-pnp-datasource
+
+grafana_datasources:
+  - name: PNP
+    type: sni-pnp-datasource
+    isDefault: true
+    access: proxy
+    url: 'http://127.0.0.1/pnp4nagios/'
+    basicAuth: false
+```
+
 License
 -------
 
