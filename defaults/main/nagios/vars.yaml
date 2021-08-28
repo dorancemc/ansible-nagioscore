@@ -4,6 +4,7 @@
 # if you has deleted one host, then you need to put here true to  
 # clean all files in assets folder and delete the hosts not defined 
 nagios_clean_assets: false
+pnp4nagios_force_reinstall: false
 
 nagios_hostgroups:  # []
   local: []

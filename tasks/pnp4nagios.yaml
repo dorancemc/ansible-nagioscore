@@ -2,28 +2,45 @@
 
 ###########
 # source: https://www.centlinux.com/2016/09/install-pnp4nagios-nagios-core-centos-7.html
+# Grafana Support: https://support.nagios.com/kb/article/nagios-core-using-grafana-with-pnp4nagios-803.html#Grafana_Config
 
-- name: pnp4nagios folder creation
-  file:
-    path: /root/pnp4nagios
+- name: check if pnp4nagios folder exists
+  stat:
+    path: /usr/local/pnp4nagios
+  register: pnp4nagiospath
+
+- name: create temporary directory
+  tempfile:
     state: directory
-    mode: 0644
+    suffix: pnp4nagios
+  register: tempfolder
+  changed_when: false
+  when: not pnp4nagiospath.stat.exists or pnp4nagios_force_reinstall
 
 - name: creates pnp4nagios
   unarchive:
     src: https://downloads.sourceforge.net/project/pnp4nagios/PNP-0.6/pnp4nagios-0.6.26.tar.gz
-    dest: /root/pnp4nagios/
+    dest: "{{ tempfolder.path }}"
     remote_src: yes
-    creates: /root/pnp4nagios/pnp4nagios-0.6.26
+    creates: "{{ tempfolder.path }}/pnp4nagios-0.6.26"
+  when: not pnp4nagiospath.stat.exists or pnp4nagios_force_reinstall
 
 - name: makes pnp4nagios
-  command: chdir=/root/pnp4nagios/pnp4nagios-0.6.26 {{ item }}
+  command: chdir={{ tempfolder.path }}/pnp4nagios-0.6.26 {{ item }}
   with_items:
   - ./configure
   - make all
   - make fullinstall
   args:
     creates: /etc/httpd/conf.d/pnp4nagios.conf
+  when: not pnp4nagiospath.stat.exists or pnp4nagios_force_reinstall
+
+- name: Download api.php for grafana integration
+  get_url:
+    url: https://github.com/lingej/pnp-metrics-api/raw/master/application/controller/api.php
+    dest: /usr/local/pnp4nagios/share/application/controllers/api.php
+    checksum: sha1:56fd36b2dde0fc6ab618740e8b2f877d0e6065ae
+    mode: '0644'
 
 - name: nagios configuration apache file
   template:
