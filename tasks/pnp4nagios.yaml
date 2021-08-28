@@ -88,4 +88,3 @@
     dest: /usr/local/pnp4nagios/etc/npcd.cfg
     mode: 0644
   notify: restart npcd
-  
