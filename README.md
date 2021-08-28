@@ -74,7 +74,7 @@ Include this in your playbook default:
 ```yaml
 - hosts: nagios
   roles:
-    - { role: dorancemc.ansible_nagioscore, tags: [ nagioscore ] }
+    - { role: dorancemc.ansible-nagioscore, tags: [ nagioscore ] }
 ```
 
 Run your playbook to apply this role

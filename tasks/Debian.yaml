@@ -35,3 +35,9 @@
   apt:
     name: "{{ rrdtool_packages }}"
     state: present
+
+- name: Add the apache user to nagios groups  # To allow writes on nagios.cmd file
+  user:
+    name: "{{ apache.user }}"
+    groups: "{{ nagios.group }}"
+    append: yes
