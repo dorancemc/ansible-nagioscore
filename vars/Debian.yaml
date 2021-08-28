@@ -31,10 +31,11 @@ apache:
   key_path: /etc/ssl/private
 
 essential_packages:
+  - rsync
   - sysstat
   - whois
-  - python3-passlib #requerido por ansible para htpasswd
-  - python-passlib #requerido por ansible para htpasswd
+  - python3-passlib 
+  - python-passlib
   
 nrpe_packages:
   - nagios-plugins-contrib
