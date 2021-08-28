@@ -38,7 +38,7 @@
   register: pnp4nagios_install_stat
 
 # comment these 3 lines to validate the pnp4nagios installation
-- name: Move foo to bar
+- name: rename install.php to install.old
   command: mv /usr/local/pnp4nagios/share/install.php /usr/local/pnp4nagios/share/install.old
   when: pnp4nagios_install_stat.stat.exists
 
@@ -88,3 +88,4 @@
     dest: /usr/local/pnp4nagios/etc/npcd.cfg
     mode: 0644
   notify: restart npcd
+  
