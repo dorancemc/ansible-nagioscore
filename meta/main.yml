@@ -1,6 +1,6 @@
 galaxy_info:
   author: dorancemc
-  description: Run the configuration base to nagios core
+  description: Role to install Nagios Core and run hosts configuration
   company: dorancemc
   license: BSD
   min_ansible_version: 2.9
