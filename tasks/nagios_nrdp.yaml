@@ -5,8 +5,6 @@
     path: /usr/local/nrdp
   register: nrdppath
 
-- debug:
-    msg: "The file or directory exists"
 - name: create temporary directory
   tempfile:
     state: directory
