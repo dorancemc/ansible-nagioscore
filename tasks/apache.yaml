@@ -23,7 +23,7 @@
     dest: "{{ apache.key_path }}/{{ digitalcertificate.key }}"
     owner: root
     group: root
-    mode: 0600
+    mode: 0644
   notify: restart apache
 
 - name: certificate crt file

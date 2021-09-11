@@ -27,14 +27,16 @@ apache:
   config_ssl_folder: /etc/apache2/sites-enabled/
   default_file: 000-default.conf
   config_ssl_file: ssl.conf
-  crt_path: /etc/ssl/certs
-  key_path: /etc/ssl/private
+  crt_path: /etc/ssl
+  key_path: /etc/ssl
 
 essential_packages:
+  - rsync
   - sysstat
   - whois
-  - python3-passlib #requerido por ansible para htpasswd
-  - python-passlib #requerido por ansible para htpasswd
+  - python3-passlib 
+  - python-passlib
+  - vim
   
 nrpe_packages:
   - nagios-plugins-contrib

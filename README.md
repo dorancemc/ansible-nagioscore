@@ -55,6 +55,11 @@ Check the contacts.yaml to get more details about variables.
 To ensure the user was deleted from httpasswd file, add the data `state: absent` on the contact definition, 
 the user will be deleted from contacts definition and the htpasswd file.
 
+### - Contact Groups
+Contact groups are the best way to handle notifications, create a contact, and join groups. 
+If a contact_group is defined on the host, all services inherit the same contact group, 
+or you can define one contact group per service
+
 Dependencies
 ------------
 
