@@ -121,12 +121,12 @@
 #validations
 - name: run command checking nagios config
   shell: "{{ nagios.command }} -v {{ tempfolder.path }}/nagios.cfg"
-  register: ps
+  register: nagios_conf_validation
   ignore_errors: yes
   changed_when: false
 
 - debug:
-    msg: "{{ ps.stdout_lines }}"
+    msg: "{{ nagios_conf_validation.stdout_lines }}"
 
 - name: update users to htpasswd file
   include: "nagios_httpasswd.yaml"
@@ -134,7 +134,7 @@
   loop_control:
     loop_var: _contact
   no_log: yes
-  when: ps.rc == 0
+  when: nagios_conf_validation is defined and nagios_conf_validation.rc == 0
 
 - name: update resource config
   template:
@@ -143,7 +143,7 @@
     mode: 0600
   with_items:
     - resource.cfg
-  when: resourcecfg.changed and ps.rc == 0
+  when: resourcecfg.changed and nagios_conf_validation.rc == 0
   notify: reload nagios
 
 - name: update nagios config
@@ -153,7 +153,7 @@
     mode: 0644
   with_items:
     - nagios.cfg
-  when: nagioscfg.changed and ps.rc == 0
+  when: nagioscfg.changed and nagios_conf_validation.rc == 0
   notify: reload nagios
 
 - name: files synchronization to config folder
@@ -168,12 +168,12 @@
   delegate_to: "{{ inventory_hostname }}"
   with_items:
     - config/
-  when: ps.rc == 0
+  when: nagios_conf_validation.rc == 0
   notify: reload nagios
 
 - name: remove temp folder
   file:
     path: "{{ tempfolder.path }}"
     state: absent
-  when: tempfolder.path is defined and ps.rc == 0
+  when: tempfolder.path is defined and nagios_conf_validation.rc == 0
   changed_when: false
