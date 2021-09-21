@@ -41,10 +41,9 @@
 
 - name: assets folder creation
   file:
-    path: "{{ nagios.etc_path }}/config/{{ item }}"
+    path: "{{ nagios.etc_path }}/{{ item }}"
     state: directory
     owner: "{{ nagios.user }}"
     group: "{{ nagios.group }}"
     mode: 0750
-  with_items:
-      - ["assets", "templates"]
+  with_items: "{{ nagios_config_parameters.cfg_dir }}"

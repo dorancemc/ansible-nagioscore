@@ -24,12 +24,12 @@ or host_vars/ folder
 
 ### - Hosts and Services
 Hosts and services could be defined in one variable or per file.  
-In nagios_clients.yaml you will find an example to define new hosts.
-Copy nagios_clients.yaml file in your group_var add more elements as a list.   
+In nagios_hosts.yaml you will find an example to define new hosts.
+Copy nagios_hosts.yaml file in your group_var add more elements as a list.   
 
 You can create files per host to define host and services. Create the folder 
 and update variable to indicate the path location for files.  
-`# nagios_clients_path: inventory/nagios_clients`
+`# nagios_hosts_path: inventory/nagios_hosts`
  
 On inventory folder creates a file like this:
 ```yaml
