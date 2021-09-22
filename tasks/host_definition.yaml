@@ -6,5 +6,11 @@
 - name: "create host definition {{ _host.host_name }}"
   template:
     src: "nagios/etc/assets/host_definition.cfg"
-    dest: "{{ tempfolder.path }}/assets/{{ _host.host_name }}.cfg"
+    dest: "{{ tempfolder.path }}/hosts/{{ _host.host_name }}.cfg"
+    mode: 0664
+
+- name: "create service definition {{ _host.host_name }}"
+  template:
+    src: "nagios/etc/assets/service_definition.cfg"
+    dest: "{{ tempfolder.path }}/services/{{ _host.host_name }}.cfg"
     mode: 0664

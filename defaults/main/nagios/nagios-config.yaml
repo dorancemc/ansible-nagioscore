@@ -14,6 +14,8 @@ nagios_config_parameters:
   cached_host_check_horizon: 15
   cached_service_check_horizon: 15
   cfg_dir:
+    - "{{ nagios.etc_path }}/hosts"
+    - "{{ nagios.etc_path }}/services"
     - "{{ nagios.etc_path }}/assets"
     - "{{ nagios.etc_path }}/templates"
   # cfg_dir:
