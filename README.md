@@ -24,26 +24,26 @@ or host_vars/ folder
 
 ### - Hosts and Services
 Hosts and services could be defined in one variable or per file.  
-In nagios_hosts.yaml you will find an example to define new hosts.
-Copy nagios_hosts.yaml file in your group_var add more elements as a list.   
+In localhost.yaml you will find an example to define new hosts.
+Copy files/nagios folder in your prefered.
 
 You can create files per host to define host and services. Create the folder 
 and update variable to indicate the path location for files.  
 `# nagios_hosts_path: inventory/nagios_hosts`
- 
+
 On inventory folder creates a file like this:
 ```yaml
 _host:
-  name: hostname #required
+  host_name: hostname #required
   address: 192.168.0.1 #if is not defined, is replaced by the name
   alias: Server Description
-  use: template #if is not defined, then take 'server' as default template
-  services:
-    servicename: servicecommand!arguments #in one line the service is defined with 'generic-service' as service template
-    servicename-other: 
-      use: service_template
-      check_command: servicecommand!arguments!arguments #syntax: <command_name>!$ARG1$!$ARG2$
-                                                        #check the commands.yaml file to validate the servicecommand and parameters
+  use: template #if is not defined, nagios_host_template_default var is the default template
+_services:
+  servicename: servicecommand!arguments # is defined with 'nagios_service_template_default' as service template
+  servicename-other: 
+    use: service_template
+    check_command: servicecommand!arguments!arguments #syntax: <command_name>!$ARG1$!$ARG2$
+                                                    #check the commands.yaml file to validate the servicecommand and parameters
 
 ```
 
