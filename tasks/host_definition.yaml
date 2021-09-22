@@ -1,11 +1,16 @@
 ---
 
-- name: include vars for {{ item }}
-  include_vars: "inventory/nagios_clients/{{ item }}.yml"
-  when: _nagios_clients is defined
+- name: "include vars for {{ _nagios_host_file|basename }}"
+  include_vars: "{{ _nagios_host_file }}"
 
-- name: create host definition {{ _host.name }}
+- name: "create host definition {{ _host.host_name }}"
   template:
     src: "nagios/etc/assets/host_definition.cfg"
-    dest: "{{ tempfolder.path }}/config/assets/{{ _host.name }}.cfg"
-    mode: 0644
+    dest: "{{ tempfolder.path }}/hosts/{{ _host.host_name }}.cfg"
+    mode: 0664
+
+- name: "create service definition {{ _host.host_name }}"
+  template:
+    src: "nagios/etc/assets/service_definition.cfg"
+    dest: "{{ tempfolder.path }}/services/{{ _host.host_name }}.cfg"
+    mode: 0664

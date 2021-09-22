@@ -26,14 +26,14 @@
     dest: "{{ nagios.etc_path }}/resource.cfg"
     owner: "{{ nagios.user }}"
     group: "{{ nagios.group }}"
-    mode: 0600
+    mode: 0664
 
 - name: create nagios config
   template:
     src: nagios/etc/{{ item }}
     dest: "{{ nagios.etc_path }}/{{ item }}"
     backup: yes
-    mode: 0644
+    mode: 0664
   notify: reload nagios
   with_items:
     - nagios.cfg
@@ -41,10 +41,9 @@
 
 - name: assets folder creation
   file:
-    path: "{{ nagios.etc_path }}/config/{{ item }}"
+    path: "{{ item }}"
     state: directory
     owner: "{{ nagios.user }}"
     group: "{{ nagios.group }}"
     mode: 0750
-  with_items:
-      - ["assets", "templates"]
+  with_items: "{{ nagios_config_parameters.cfg_dir }}"

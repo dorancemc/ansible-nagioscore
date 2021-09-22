@@ -1,5 +1,7 @@
 ---
-# nagios_clients_path: inventory/nagios_clients
+nagios_hosts_path: files/nagios/nagios_hosts
+nagios_host_template_default: server
+nagios_service_template_default: generic-service
 
 # if you has deleted one host, then you need to put here true to  
 # clean all files in assets folder and delete the hosts not defined 
