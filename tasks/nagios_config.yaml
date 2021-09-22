@@ -103,6 +103,7 @@
     _nagios_hosts_files: "{{ _nagios_hosts_files|default([]) + [item.src] }}"
   with_community.general.filetree: "{{ nagios_hosts_path }}/"
   when: nagios_hosts_path is defined and item.state=='file'
+  no_log: true
 
 - name: create assets config
   include: "host_definition.yaml"
@@ -110,6 +111,7 @@
   when: _nagios_hosts_files is defined
   loop_control:
     loop_var: _nagios_host_file
+    label: "{{ _nagios_host_file|basename }}"
 
 #validations
 - name: run command checking nagios config
