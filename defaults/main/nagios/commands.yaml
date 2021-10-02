@@ -37,3 +37,5 @@ nagios_commands_definition:
   check_local_procs: $USER1$/check_procs -w $ARG1$ -c $ARG2$ -s $ARG3$
   check_local_users: $USER1$/check_users -w $ARG1$ -c $ARG2$
   check_local_mrtgtraf: $USER1$/check_mrtgtraf -F $ARG1$ -a $ARG2$ -w $ARG3$ -c $ARG4$ -e $ARG5$
+  # ncpa command definition
+  check_ncpa: $USER1$/check_ncpa.py -H $HOSTADDRESS$ $ARG1$
