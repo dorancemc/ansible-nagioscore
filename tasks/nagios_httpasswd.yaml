@@ -9,5 +9,5 @@
     owner: root
     group: "{{ apache.group }}"
     mode: 0640
-  no_log: yes
+  no_log: true
   when: contacts[_contact]['password'] is defined

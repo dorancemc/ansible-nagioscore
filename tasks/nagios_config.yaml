@@ -27,7 +27,7 @@
 - name: folders synchronization to temp folder
   synchronize:
     src: "{{ nagios.etc_path }}/{{ item|basename }}/"
-    dest:  "{{ tempfolder.path }}/{{ item|basename }}/"
+    dest: "{{ tempfolder.path }}/{{ item|basename }}/"
     owner: yes
     group: yes
     perms: yes
@@ -40,7 +40,7 @@
 - name: files synchronization to temp folder
   synchronize:
     src: "{{ nagios.etc_path }}/{{ item }}"
-    dest:  "{{ tempfolder.path }}/{{ item }}"
+    dest: "{{ tempfolder.path }}/{{ item }}"
     owner: yes
     group: yes
     perms: yes
@@ -106,7 +106,7 @@
   no_log: true
 
 - name: create assets config
-  include: "host_definition.yaml"
+  include_tasks: "host_definition.yaml"
   with_items: "{{ _nagios_hosts_files }}"
   when: _nagios_hosts_files is defined
   loop_control:
@@ -124,7 +124,7 @@
     msg: "{{ nagios_conf_validation.stdout_lines }}"
 
 - name: update users to htpasswd file
-  include: "nagios_httpasswd.yaml"
+  include_tasks: "nagios_httpasswd.yaml"
   with_items: "{{ contacts }}"
   loop_control:
     loop_var: _contact
@@ -153,7 +153,7 @@
 
 - name: folders synchronization to temp folder
   synchronize:
-    src:  "{{ tempfolder.path }}/{{ item|basename }}/"
+    src: "{{ tempfolder.path }}/{{ item|basename }}/"
     dest: "{{ nagios.etc_path }}/{{ item|basename }}/"
     owner: yes
     group: yes

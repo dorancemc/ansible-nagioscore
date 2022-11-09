@@ -34,10 +34,10 @@ essential_packages:
   - rsync
   - sysstat
   - whois
-  - python3-passlib 
+  - python3-passlib
   - python-passlib
   - vim
-  
+
 nrpe_packages:
   - nagios-plugins-contrib
 

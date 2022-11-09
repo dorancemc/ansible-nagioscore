@@ -28,9 +28,9 @@
 - name: makes pnp4nagios
   command: chdir={{ tempfolder.path }}/pnp4nagios-0.6.26 {{ item }}
   with_items:
-  - ./configure
-  - make all
-  - make fullinstall
+    - ./configure
+    - make all
+    - make fullinstall
   args:
     creates: /etc/httpd/conf.d/pnp4nagios.conf
   when: not pnp4nagiospath.stat.exists or pnp4nagios_force_reinstall

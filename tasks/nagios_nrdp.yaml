@@ -1,3 +1,4 @@
+---
 #https://github.com/NagiosEnterprises/nrdp
 
 - name: check if nrdp folder exists
@@ -33,7 +34,7 @@
 - name: files synchronization to nrp folder
   synchronize:
     src: "{{ tempfolder.path }}/nrdp-2.0.4/{{ item }}"
-    dest:  "/usr/local/nrdp"
+    dest: "/usr/local/nrdp"
     perms: yes
   delegate_to: "{{ inventory_hostname }}"
   with_items:

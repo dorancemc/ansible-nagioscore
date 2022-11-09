@@ -2,10 +2,10 @@
 
 - name: creating index.html file
   copy:
-    content:  |
-              <head>
-              <meta http-equiv="REFRESH" content="0; url={{ nagios.url_path }}">
-              </head>
+    content: |
+             <head>
+             <meta http-equiv="REFRESH" content="0; url={{ nagios.url_path }}">
+             </head>
     dest: "{{ base_html_path }}/index.html"
     mode: 0644
 

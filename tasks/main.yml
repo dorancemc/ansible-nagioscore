@@ -12,34 +12,34 @@
     - '{{ ansible_facts.os_family }}_{{ ansible_facts.distribution_major_version }}.yaml'
     - '{{ ansible_facts.os_family }}.yaml'
   tags:
-    - apache_config
-    - nagios_config
-    - nrdp_config
+    - apache-config
+    - nagios-config
+    - nrdp-config
 
 - name: set OS dependent tasks
-  include: '{{ item }}'
+  include_tasks: '{{ item }}'
   with_first_found:
     - '{{ ansible_facts.distribution }}_{{ ansible_facts.distribution_major_version }}.yaml'
     - '{{ ansible_facts.distribution }}.yaml'
     - '{{ ansible_facts.os_family }}_{{ ansible_facts.distribution_major_version }}.yaml'
     - '{{ ansible_facts.os_family }}.yaml'
 
-- include: network.yaml
+- include_tasks: network.yaml
 
-- include: postfix.yaml
+- include_tasks: postfix.yaml
 
-- include: apache.yaml
+- include_tasks: apache.yaml
   tags:
-    - apache_config
+    - apache-config
 
-- include: nagios.yaml
+- include_tasks: nagios.yaml
 
-- include: nagios_nrdp.yaml
+- include_tasks: nagios_nrdp.yaml
   when: install_nrdp
 
-- include: pnp4nagios.yaml
+- include_tasks: pnp4nagios.yaml
   when: install_pnp4nagios
 
-- include: nagios_config.yaml
+- include_tasks: nagios_config.yaml
   tags:
-    - nagios_config
+    - nagios-config

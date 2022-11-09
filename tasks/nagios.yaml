@@ -6,7 +6,7 @@
     enabled: yes
 
 - name: add users to htpasswd file
-  include: "nagios_httpasswd.yaml"
+  include_tasks: "nagios_httpasswd.yaml"
   with_items: "{{ contacts }}"
   loop_control:
     loop_var: _contact
