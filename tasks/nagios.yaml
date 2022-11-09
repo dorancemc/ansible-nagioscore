@@ -7,10 +7,10 @@
 
 - name: add users to htpasswd file
   include_tasks: "nagios_httpasswd.yaml"
-  with_items: "{{ contacts }}"
+  with_items: "{{ nagios_contacts }}"
   loop_control:
     loop_var: _contact
-  no_log: yes
+  no_log: true
 
 - name: create folder
   file:
@@ -46,7 +46,7 @@
     owner: "{{ nagios.user }}"
     group: "{{ nagios.group }}"
     mode: 0750
-  with_items: "{{ nagios_config_parameters.cfg_dir }}"
+  with_items: "{{ __nagios_config_parameters.cfg_dir }}"
 
 - name: Download check_ncpa.py
   get_url:

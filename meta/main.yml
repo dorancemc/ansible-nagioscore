@@ -5,7 +5,7 @@ galaxy_info:
   description: Role to install Nagios Core and run hosts configuration
   company: dorancemc
   license: BSD
-  min_ansible_version: '2.11'
+  min_ansible_version: '2.12'
   platforms:
     - name: EL
       versions:

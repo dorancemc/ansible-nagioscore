@@ -1,6 +1,7 @@
 # https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/4/en/configmain.html
 ---
-nagios_config_parameters:
+nagios_config_parameters: []
+nagios_config_parameters_default:
   accept_passive_host_checks: 1
   accept_passive_service_checks: 1
   additional_freshness_latency: 15

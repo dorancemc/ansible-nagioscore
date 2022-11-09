@@ -6,6 +6,8 @@
     suffix: nagios
   register: tempfolder
   changed_when: false
+  tags:
+    - nagios-config
 
 - name: assets folder creation
   file:
@@ -14,8 +16,10 @@
     owner: "{{ nagios.user }}"
     group: "{{ nagios.group }}"
     mode: 0750
-  with_items: "{{ nagios_config_parameters.cfg_dir }}"
+  with_items: "{{ __nagios_config_parameters.cfg_dir }}"
   changed_when: false
+  tags:
+    - nagios-config
 
 - name: change tempfile ownership
   ansible.builtin.file:
@@ -23,6 +27,8 @@
     owner: "{{ nagios.user }}"
     group: "{{ nagios.group }}"
   changed_when: false
+  tags:
+    - nagios-config
 
 - name: folders synchronization to temp folder
   synchronize:
@@ -33,9 +39,11 @@
     perms: yes
   delegate_to: "{{ inventory_hostname }}"
   with_items:
-    - "{{ nagios_config_parameters.cfg_dir }}"
+    - "{{ __nagios_config_parameters.cfg_dir }}"
   changed_when: false
   when: not nagios_clean_assets
+  tags:
+    - nagios-config
 
 - name: files synchronization to temp folder
   synchronize:
@@ -50,6 +58,8 @@
     - resource.cfg
   changed_when: false
   when: not nagios_clean_assets
+  tags:
+    - nagios-config
 
 - name: update resource config
   template:
@@ -59,6 +69,8 @@
   with_items:
     - resource.cfg
   register: resourcecfg
+  tags:
+    - nagios-config
 
 - name: update nagios config
   template:
@@ -68,6 +80,8 @@
   with_items:
     - nagios.cfg
   register: nagioscfg
+  tags:
+    - nagios-config
 
 - name: modify temp path for nagios.cfg file
   replace:
@@ -75,6 +89,8 @@
     regexp: '{{ nagios.etc_path }}'
     replace: '{{ tempfolder.path }}'
   changed_when: false
+  tags:
+    - nagios-config
 
 #templates
 - name: create nagios templates config
@@ -88,6 +104,8 @@
     - host_templates.cfg
     - service_templates.cfg
     - time_templates.cfg
+  tags:
+    - nagios-config
 
 - name: create assets config
   template:
@@ -97,6 +115,8 @@
   with_items:
     - contacts.cfg
     - groups_definition.cfg
+  tags:
+    - nagios-config
 
 - name: list clients config
   set_fact:
@@ -104,6 +124,8 @@
   with_community.general.filetree: "{{ nagios_hosts_path }}/"
   when: nagios_hosts_path is defined and item.state=='file'
   no_log: true
+  tags:
+    - nagios-config
 
 - name: create assets config
   include_tasks: "host_definition.yaml"
@@ -112,24 +134,32 @@
   loop_control:
     loop_var: _nagios_host_file
     label: "{{ _nagios_host_file|basename }}"
+  tags:
+    - nagios-config
 
 #validations
 - name: run command checking nagios config
   shell: "{{ nagios.command }} -v {{ tempfolder.path }}/nagios.cfg"
   register: nagios_conf_validation
-  ignore_errors: yes
+  ignore_errors: true
   changed_when: false
+  tags:
+    - nagios-config
 
 - debug:
     msg: "{{ nagios_conf_validation.stdout_lines }}"
+  tags:
+    - nagios-config
 
 - name: update users to htpasswd file
   include_tasks: "nagios_httpasswd.yaml"
-  with_items: "{{ contacts }}"
+  with_items: "{{ nagios_contacts }}"
   loop_control:
     loop_var: _contact
-  no_log: yes
+  no_log: true
   when: nagios_conf_validation is defined and nagios_conf_validation.rc == 0
+  tags:
+    - nagios-config
 
 - name: update resource config
   template:
@@ -140,6 +170,8 @@
     - resource.cfg
   when: resourcecfg.changed and nagios_conf_validation.rc == 0
   notify: reload nagios
+  tags:
+    - nagios-config
 
 - name: update nagios config
   template:
@@ -150,6 +182,8 @@
     - nagios.cfg
   when: nagioscfg.changed and nagios_conf_validation.rc == 0
   notify: reload nagios
+  tags:
+    - nagios-config
 
 - name: folders synchronization to temp folder
   synchronize:
@@ -162,9 +196,11 @@
     recursive: yes
   delegate_to: "{{ inventory_hostname }}"
   with_items:
-    - "{{ nagios_config_parameters.cfg_dir }}"
+    - "{{ __nagios_config_parameters.cfg_dir }}"
   when: nagios_conf_validation.rc == 0
   notify: reload nagios
+  tags:
+    - nagios-config
 
 - name: remove temp folder
   file:
@@ -172,3 +208,5 @@
     state: absent
   when: tempfolder.path is defined and nagios_conf_validation.rc == 0
   changed_when: false
+  tags:
+    - nagios-config
