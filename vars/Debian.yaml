@@ -35,7 +35,6 @@ essential_packages:
   - sysstat
   - whois
   - python3-passlib
-  - python-passlib
   - vim
 
 nrpe_packages:
