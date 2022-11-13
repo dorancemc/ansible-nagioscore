@@ -12,9 +12,9 @@ galaxy_info:
         - '8'
     - name: Ubuntu
       versions:
-        - focal
+        - jammy
     - name: Debian
       versions:
-        - buster
+        - bullseye
 
   galaxy_tags: [nagios, monitoring, linux]
