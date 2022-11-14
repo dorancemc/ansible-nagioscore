@@ -1,6 +1,7 @@
 # https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/4/en/configcgi.html
 ---
-nagios_cgi_parameters:
+nagios_cgi_parameters: []
+nagios_cgi_parameters_default:
   action_url_target: _blank
   authorized_for_all_host_commands: nagiosadmin
   authorized_for_all_hosts: nagiosadmin

@@ -1,6 +1,7 @@
 # https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/3/en/objectdefinitions.html#timeperiod
 ---
-nagios_timeperiods:
+nagios_timeperiods: []
+nagios_timeperiods_default:
   - name: 24x7
     timeperiod_name: 24x7
     alias: 24 Hours A Day, 7 Days A Week

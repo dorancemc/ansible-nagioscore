@@ -1,5 +1,6 @@
 ---
-- hosts: localhost
-  remote_user: root
+
+- hosts: all
+  become: true
   roles:
-    - ansible-nagioscore
+    - { role: ../ansible_nagioscore }

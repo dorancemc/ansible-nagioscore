@@ -1,6 +1,7 @@
 # https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/4/en/objectdefinitions.html#command
 ---
-nagios_commands_definition:
+nagios_commands_definition: []
+nagios_commands_definition_default:
   check_nrpe: $USER1$/check_nrpe -H $HOSTADDRESS$ -2 -c $ARG1$ $ARG2$
   # notifications
   notificacion_host_x_correo: '/usr/bin/printf "%b" "***** Notificacion de host *****\n\nTipo de notificacion: $NOTIFICATIONTYPE$\nHost: $HOSTNAME$\nEstado: $HOSTSTATE$\nIP: $HOSTADDRESS$\nInfo: $HOSTOUTPUT$\nFecha/Hora: $LONGDATETIME$\n\nInformacion Adicional:\nhttp://{{ inventory_hostname }}/{{ nagios.url_path }}/cgi-bin/status.cgi?host=$HOSTNAME$\n$NOTIFICATIONCOMMENT$" | /usr/bin/mail -r $ADMINEMAIL$ -s "** $NOTIFICATIONTYPE$ Estado de host: $HOSTNAME$ = $HOSTSTATE$ **" $CONTACTEMAIL$'
@@ -37,3 +38,5 @@ nagios_commands_definition:
   check_local_procs: $USER1$/check_procs -w $ARG1$ -c $ARG2$ -s $ARG3$
   check_local_users: $USER1$/check_users -w $ARG1$ -c $ARG2$
   check_local_mrtgtraf: $USER1$/check_mrtgtraf -F $ARG1$ -a $ARG2$ -w $ARG3$ -c $ARG4$ -e $ARG5$
+  # ncpa command definition
+  check_ncpa: $USER1$/check_ncpa.py -H $HOSTADDRESS$ $ARG1$

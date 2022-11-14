@@ -1,6 +1,7 @@
 # https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/3/en/objectdefinitions.html#service
 ---
-nagios_service_templates:
+nagios_service_templates: []
+nagios_service_templates_default:
   - name: default-service  # The 'name' of this service template
     active_checks_enabled: 1  # Active service checks are enabled
     passive_checks_enabled: 1  # Passive service checks are enabled/accepted

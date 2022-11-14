@@ -1,0 +1,11 @@
+---
+
+__nagios_cgi_parameters: "{{ nagios_cgi_parameters_default | combine(nagios_cgi_parameters, recursive=True) }}"
+__nagios_commands_definition: "{{ nagios_commands_definition_default | combine(nagios_commands_definition, recursive=True) }}"
+__nagios_config_parameters: "{{ nagios_config_parameters_default | combine(nagios_config_parameters, recursive=True) }}"
+__nagios_resources: "{{ nagios_resources_default | combine(nagios_resources, recursive=True) }}"
+# templates
+__nagios_contact_templates: "{{ nagios_contact_templates_default | community.general.lists_mergeby(nagios_contact_templates, 'name', recursive=true) }}"
+__nagios_host_templates: "{{ nagios_host_templates_default | community.general.lists_mergeby(nagios_host_templates, 'name', recursive=true) }}"
+__nagios_service_templates: "{{ nagios_service_templates_default | community.general.lists_mergeby(nagios_service_templates, 'name', recursive=true) }}"
+__nagios_timeperiods: "{{ nagios_timeperiods_default | community.general.lists_mergeby(nagios_timeperiods, 'name', recursive=true) }}"

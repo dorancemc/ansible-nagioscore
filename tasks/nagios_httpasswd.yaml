@@ -4,10 +4,10 @@
   htpasswd:
     path: "{{ nagios.passwd_file }}"
     name: "{{ _contact }}"
-    password: "{{ contacts[_contact]['password'] }}"
-    state: "{{ contacts[_contact]['state'] | default('present') }}"
+    password: "{{ nagios_contacts[_contact]['password'] }}"
+    state: "{{ nagios_contacts[_contact]['state'] | default('present') }}"
     owner: root
     group: "{{ apache.group }}"
     mode: 0640
-  no_log: yes
-  when: contacts[_contact]['password'] is defined
+  no_log: true
+  when: nagios_contacts[_contact]['password'] is defined

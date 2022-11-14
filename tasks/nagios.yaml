@@ -6,11 +6,11 @@
     enabled: yes
 
 - name: add users to htpasswd file
-  include: "nagios_httpasswd.yaml"
-  with_items: "{{ contacts }}"
+  include_tasks: "nagios_httpasswd.yaml"
+  with_items: "{{ nagios_contacts }}"
   loop_control:
     loop_var: _contact
-  no_log: yes
+  no_log: true
 
 - name: create folder
   file:
@@ -46,4 +46,10 @@
     owner: "{{ nagios.user }}"
     group: "{{ nagios.group }}"
     mode: 0750
-  with_items: "{{ nagios_config_parameters.cfg_dir }}"
+  with_items: "{{ __nagios_config_parameters.cfg_dir }}"
+
+- name: Download check_ncpa.py
+  get_url:
+    url: https://raw.githubusercontent.com/NagiosEnterprises/ncpa/master/client/check_ncpa.py
+    dest: "{{ nagios.plugins_path }}/check_ncpa.py"
+    mode: '0755'
