@@ -1,5 +1,7 @@
 # https://github.com/NagiosEnterprises/nrdp/blob/master/README.md
 ---
+nrdp_version: "2.0.5"
+
 nrdp_config_php:
   authorized_tokens: #[]
     - "{{ nrdp_mysecrettoken }}"

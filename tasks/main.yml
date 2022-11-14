@@ -14,7 +14,8 @@
   tags:
     - nagios-apache-config
     - nagios-config
-    - nrdp-config
+    - nagios-nrdp
+    - nagios-nrdp-config
 
 - name: set OS dependent tasks
   include_tasks: '{{ item }}'
@@ -36,6 +37,8 @@
 
 - include_tasks: nagios_nrdp.yaml
   when: install_nrdp
+  tags:
+    - nagios-nrdp
 
 - include_tasks: pnp4nagios.yaml
   when: install_pnp4nagios

@@ -5,6 +5,8 @@
   stat:
     path: /usr/local/nrdp
   register: nrdppath
+  tags:
+    - nagios-nrdp
 
 - name: create temporary directory
   tempfile:
@@ -13,15 +15,19 @@
   register: tempfolder
   changed_when: false
   when: not nrdppath.stat.exists or nrdp_force_reinstall
+  tags:
+    - nagios-nrdp
 
 - name: creates temp nrdp
   unarchive:
-    src: https://github.com/NagiosEnterprises/nrdp/archive/2.0.4.tar.gz
+    src: "https://github.com/NagiosEnterprises/nrdp/archive/{{ nrdp_version }}.tar.gz"
     dest: "{{ tempfolder.path }}"
     remote_src: yes
-    creates: "{{ tempfolder.path }}/nrdp-2.0.4"
+    creates: "{{ tempfolder.path }}/nrdp-{{ nrdp_version }}"
   changed_when: false
   when: not nrdppath.stat.exists or nrdp_force_reinstall
+  tags:
+    - nagios-nrdp
 
 - name: nrdp folder creation
   file:
@@ -30,10 +36,12 @@
     owner: "{{ nagios.user }}"
     group: "{{ nagios.group }}"
     mode: 0755
+  tags:
+    - nagios-nrdp
 
 - name: files synchronization to nrp folder
   synchronize:
-    src: "{{ tempfolder.path }}/nrdp-2.0.4/{{ item }}"
+    src: "{{ tempfolder.path }}/nrdp-{{ nrdp_version }}/{{ item }}"
     dest: "/usr/local/nrdp"
     perms: yes
   delegate_to: "{{ inventory_hostname }}"
@@ -43,13 +51,17 @@
     - LICENSE.md
     - CHANGES.md
   when: not nrdppath.stat.exists or nrdp_force_reinstall
+  tags:
+    - nagios-nrdp
 
 - name: nrdp php configuration file
   template:
     src: nrdp/config.inc.php
     dest: /usr/local/nrdp/server/config.inc.php
     mode: 0644
-  tags: nrdp_config
+  tags:
+    - nagios-nrdp
+    - nagios-nrdp-config
 
 - name: nrdp folder perms
   file:
@@ -58,7 +70,9 @@
     group: "{{ nagios.group }}"
     mode: u=rwX,g=rX,o=rX
     recurse: yes
-  tags: nrdp_config
+  tags:
+    - nagios-nrdp
+    - nagios-nrdp-config
 
 - name: nrdp configuration apache file
   template:
@@ -66,3 +80,5 @@
     dest: "{{ apache.sites_folder }}/nrdp.conf"
     mode: 0644
   notify: restart apache
+  tags:
+    - nagios-nrdp
