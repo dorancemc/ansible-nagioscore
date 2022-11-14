@@ -51,5 +51,5 @@
 - name: Download check_ncpa.py
   get_url:
     url: https://raw.githubusercontent.com/NagiosEnterprises/ncpa/master/client/check_ncpa.py
-    dest: /usr/lib/nagios/plugins/check_ncpa.py
+    dest: "{{ nagios.plugins_path }}/check_ncpa.py"
     mode: '0755'
