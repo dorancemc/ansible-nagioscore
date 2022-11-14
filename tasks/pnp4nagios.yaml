@@ -2,6 +2,7 @@
 
 ###########
 # source: https://www.centlinux.com/2016/09/install-pnp4nagios-nagios-core-centos-7.html
+# This task will be removed in the next version, as pnp4nagios is no longer supported and is not compatible with php8.0.
 # Grafana Support: https://support.nagios.com/kb/article/nagios-core-using-grafana-with-pnp4nagios-803.html#Grafana_Config
 
 - name: check if pnp4nagios folder exists
