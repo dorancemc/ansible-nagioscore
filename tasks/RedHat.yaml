@@ -40,10 +40,10 @@
 
 - name: Install essential packages
   dnf:
-    name: "{{ essential_packages }}"
+    name: "{{ nagios_aditional_packages }}"
     state: present
 
 - name: Install rrdtool and dependencies
   dnf:
-    name: "{{ rrdtool_packages }}"
+    name: "{{ nagios_rrdtool_packages }}"
     state: present

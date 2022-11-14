@@ -2,7 +2,7 @@
 
 - name: restart apache
   service:
-    name: '{{ apache.service_name }}'
+    name: '{{ nagios_apache.service_name }}'
     state: restarted
     enabled: yes
 

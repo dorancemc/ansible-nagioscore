@@ -28,16 +28,21 @@
 
 - name: Install essential packages
   apt:
-    name: "{{ essential_packages }}"
+    name: "{{ nagios_aditional_packages }}"
     state: present
 
 - name: Install rrdtool and dependencies
   apt:
-    name: "{{ rrdtool_packages }}"
+    name: "{{ nagios_rrdtool_packages }}"
+    state: present
+
+- name: Install influxdb and dependencies
+  apt:
+    name: "{{ nagios_rrdtool_packages }}"
     state: present
 
 - name: Add the apache user to nagios groups  # To allow writes on nagios.cmd file
   user:
-    name: "{{ apache.user }}"
+    name: "{{ nagios_apache.user }}"
     groups: "{{ nagios.group }}"
     append: yes

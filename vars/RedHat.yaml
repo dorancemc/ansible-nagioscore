@@ -1,6 +1,6 @@
 ---
 
-base_html_path: /var/www/html/
+nagios_apache_html_path: /var/www/html/
 
 nagios:
   user: nagios
@@ -18,7 +18,7 @@ nagios:
   etc_path: /etc/nagios
   plugins_path: /usr/lib64/nagios/plugins
 
-apache:
+nagios_apache:
   user: apache
   group: apache
   service_name: httpd
@@ -30,7 +30,7 @@ apache:
   crt_path: /etc/pki/tls/certs
   key_path: /etc/pki/tls/private
 
-essential_packages:
+nagios_aditional_packages:
   - sysstat
   - whois
   - python3-passlib
@@ -67,7 +67,7 @@ nrpe_packages:
   - nagios-plugins-uptime
   - nagios-plugins-users
 
-rrdtool_packages:
+nagios_rrdtool_packages:
   - rrdtool
   - rrdtool-perl
   - perl-Time-HiRes

@@ -46,7 +46,7 @@
 - name: nagios configuration apache file
   template:
     src: pnp4nagios/pnp4nagios.conf
-    dest: "{{ apache.sites_folder }}/pnp4nagios.conf"
+    dest: "{{ nagios_apache.sites_folder }}/pnp4nagios.conf"
     mode: 0644
   notify: restart apache
 

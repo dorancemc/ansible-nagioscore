@@ -6,15 +6,15 @@
              <head>
              <meta http-equiv="REFRESH" content="0; url={{ nagios.url_path }}">
              </head>
-    dest: "{{ base_html_path }}/index.html"
+    dest: "{{ nagios_apache_html_path }}/index.html"
     mode: 0644
   tags:
     - nagios-apache-config
 
 - name: nagios configuration apache file
   template:
-    src: "{{ ansible_facts.os_family }}/httpd/{{ apache.config_file }}"
-    dest: "{{ apache.sites_folder }}/{{ apache.config_file }}"
+    src: "{{ ansible_facts.os_family }}/httpd/{{ nagios_apache.config_file }}"
+    dest: "{{ nagios_apache.sites_folder }}/{{ nagios_apache.config_file }}"
     mode: 0644
   notify: restart apache
   tags:
@@ -24,7 +24,7 @@
 - name: certificate key file
   copy:
     src: "{{ digitalcertificate.source_path }}/{{ digitalcertificate.key }}"
-    dest: "{{ apache.key_path }}/{{ digitalcertificate.key }}"
+    dest: "{{ nagios_apache.key_path }}/{{ digitalcertificate.key }}"
     owner: root
     group: root
     mode: 0644
@@ -35,7 +35,7 @@
 - name: certificate crt file
   copy:
     src: "{{ digitalcertificate.source_path }}/{{ digitalcertificate.file }}"
-    dest: "{{ apache.crt_path }}/{{ digitalcertificate.file }}"
+    dest: "{{ nagios_apache.crt_path }}/{{ digitalcertificate.file }}"
     owner: root
     group: root
     mode: 0644
@@ -45,15 +45,15 @@
 
 - name: apache ssl configuration
   template:
-    src: "{{ ansible_facts.os_family }}/httpd/{{ apache.config_ssl_file }}"
-    dest: "{{ apache.config_ssl_folder }}/{{ apache.config_ssl_file }}"
+    src: "{{ ansible_facts.os_family }}/httpd/{{ nagios_apache.config_ssl_file }}"
+    dest: "{{ nagios_apache.config_ssl_folder }}/{{ nagios_apache.config_ssl_file }}"
     mode: 0644
   notify: restart apache
 
 - name: apache default configuration
   template:
-    src: "{{ ansible_facts.os_family }}/httpd/{{ apache.default_file }}"
-    dest: "{{ apache.config_ssl_folder }}/{{ apache.default_file }}"
+    src: "{{ ansible_facts.os_family }}/httpd/{{ nagios_apache.default_file }}"
+    dest: "{{ nagios_apache.config_ssl_folder }}/{{ nagios_apache.default_file }}"
     mode: 0644
   notify: restart apache
   tags:

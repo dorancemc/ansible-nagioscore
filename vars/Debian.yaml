@@ -1,6 +1,5 @@
 ---
 
-base_html_path: /var/www/html/
 
 nagios:
   user: nagios
@@ -18,7 +17,9 @@ nagios:
   etc_path: /etc/nagios4
   plugins_path: /usr/lib/nagios/plugins
 
-apache:
+nagios_apache_html_path: /var/www/html/
+
+nagios_apache:
   user: www-data
   group: www-data
   service_name: apache2
@@ -30,7 +31,7 @@ apache:
   crt_path: /etc/ssl
   key_path: /etc/ssl
 
-essential_packages:
+nagios_aditional_packages:
   - rsync
   - sysstat
   - whois
@@ -40,7 +41,7 @@ essential_packages:
 nrpe_packages:
   - nagios-plugins-contrib
 
-rrdtool_packages:
+nagios_rrdtool_packages:
   - rrdtool
   - librrds-perl
   - libtime-hr-perl

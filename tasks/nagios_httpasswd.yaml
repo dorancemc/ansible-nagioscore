@@ -7,7 +7,7 @@
     password: "{{ nagios_contacts[_contact]['password'] }}"
     state: "{{ nagios_contacts[_contact]['state'] | default('present') }}"
     owner: root
-    group: "{{ apache.group }}"
+    group: "{{ nagios_apache.group }}"
     mode: 0640
   no_log: true
   when: nagios_contacts[_contact]['password'] is defined
