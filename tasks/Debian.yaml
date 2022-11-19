@@ -26,7 +26,7 @@
     name: "{{ nrpe_packages }}"
     state: present
 
-- name: Install essential packages
+- name: Install aditional packages
   apt:
     name: "{{ nagios_aditional_packages }}"
     state: present
@@ -35,11 +35,12 @@
   apt:
     name: "{{ nagios_rrdtool_packages }}"
     state: present
+  when: install_pnp4nagios
 
-- name: Install influxdb and dependencies
-  apt:
-    name: "{{ nagios_rrdtool_packages }}"
-    state: present
+# - name: Install influxdb and dependencies
+#   apt:
+#     name: "{{ nagios_influxdb_packages }}"
+#     state: present
 
 - name: Add the apache user to nagios groups  # To allow writes on nagios.cmd file
   user:

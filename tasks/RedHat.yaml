@@ -38,7 +38,7 @@
     state: present
     enablerepo: PowerTools
 
-- name: Install essential packages
+- name: Install aditional packages
   dnf:
     name: "{{ nagios_aditional_packages }}"
     state: present
@@ -47,3 +47,4 @@
   dnf:
     name: "{{ nagios_rrdtool_packages }}"
     state: present
+  when: install_pnp4nagios

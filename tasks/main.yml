@@ -29,7 +29,7 @@
 
 - include_tasks: postfix.yaml
 
-- include_tasks: nagios_apache.yaml
+- include_tasks: apache.yaml
   tags:
     - nagios-apache-config
 
