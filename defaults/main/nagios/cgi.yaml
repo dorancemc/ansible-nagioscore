@@ -2,6 +2,13 @@
 ---
 nagios_cgi_parameters: []
 nagios_cgi_parameters_default:
+  authorized_contactgroup_for_system_information: admins
+  authorized_contactgroup_for_system_commands: admins
+  authorized_contactgroup_for_configuration_information: admins
+  authorized_contactgroup_for_all_hosts: admins
+  authorized_contactgroup_for_all_host_commands: admins
+  authorized_contactgroup_for_all_services: admins
+  authorized_contactgroup_for_all_service_commands: admins
   action_url_target: _blank
   authorized_for_all_host_commands: nagiosadmin
   authorized_for_all_hosts: nagiosadmin
