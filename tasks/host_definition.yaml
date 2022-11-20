@@ -1,16 +1,39 @@
 ---
 
 - name: "include vars for {{ _nagios_host_file|basename }}"
-  include_vars: "{{ _nagios_host_file }}"
+  include_vars:
+    file: "{{ _nagios_host_file }}"
+    name: _host_vars
+  when: _nagios_host_file is defined
+  tags:
+    - nagios-config
+
+- name: check vars for host
+  set_fact:
+    _host: "{{ _host_vars._host|default('') }}"
+  tags:
+    - nagios-config
+
+- name: check vars for services
+  set_fact:
+    _services: "{{ _host_vars._services|default('') }}"
+  tags:
+    - nagios-config
 
 - name: "create host definition {{ _host.host_name }}"
   template:
     src: "nagios/etc/assets/host_definition.cfg"
     dest: "{{ tempfolder.path }}/hosts/{{ _host.host_name }}.cfg"
     mode: 0664
+  when: _host|length>0
+  tags:
+    - nagios-config
 
 - name: "create service definition {{ _host.host_name }}"
   template:
     src: "nagios/etc/assets/service_definition.cfg"
     dest: "{{ tempfolder.path }}/services/{{ _host.host_name }}.cfg"
     mode: 0664
+  when: _services|length>0
+  tags:
+    - nagios-config
