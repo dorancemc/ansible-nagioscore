@@ -5,6 +5,7 @@
       - nagios.command is defined
       - nagios.etc_path is defined
       - __nagios_config_parameters.cfg_dir | length > 0
+      - nagioscore_config_mode in ['always', 'never', 'once']
     fail_msg: Nagios configuration variables are not defined.
 
 - name: Create temporary directory
@@ -83,6 +84,7 @@
     src: "nagios/etc/templates/{{ item }}"
     dest: "{{ ansible_nagioscore_config_tempfolder.path }}/templates/{{ item }}"
     mode: "0664"
+    force: "{{ nagioscore_config_mode == 'always' }}"
   loop:
     - commands.cfg
     - contact_templates.cfg
@@ -95,6 +97,7 @@
     src: "nagios/etc/assets/{{ item }}"
     dest: "{{ ansible_nagioscore_config_tempfolder.path }}/assets/{{ item }}"
     mode: "0664"
+    force: "{{ nagioscore_config_mode == 'always' }}"
   loop:
     - contacts.cfg
     - groups_definition.cfg

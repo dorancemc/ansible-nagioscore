@@ -96,3 +96,4 @@
   tags:
     - nagioscore
     - nagioscore-config
+  when: nagioscore_config_mode != 'never'

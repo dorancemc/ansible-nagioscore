@@ -172,6 +172,37 @@
     regexp: 'MB_OVERLOAD_STRING'
     replace: '2'
 
+- name: Fix kohana error handler argument count
+  ansible.builtin.replace:
+    path: /usr/local/pnp4nagios/lib/kohana/system/core/Kohana.php
+    regexp: 'func_num_args\(\) === 5'
+    replace: 'func_num_args() >= 4'
+
+- name: Fix deprecated E_STRICT constant
+  ansible.builtin.replace:
+    path: "{{ item }}"
+    regexp: '\bE_STRICT\b'
+    replace: '2048'
+  loop:
+    - /usr/local/pnp4nagios/lib/kohana/system/core/Kohana.php
+    - /usr/local/pnp4nagios/lib/kohana/system/i18n/de_DE/errors.php
+    - /usr/local/pnp4nagios/lib/kohana/system/i18n/en_US/errors.php
+    - /usr/local/pnp4nagios/lib/kohana/system/i18n/es_ES/errors.php
+    - /usr/local/pnp4nagios/lib/kohana/system/i18n/fr_FR/errors.php
+    - /usr/local/pnp4nagios/lib/kohana/system/i18n/it_IT/errors.php
+    - /usr/local/pnp4nagios/lib/kohana/system/i18n/nl_NL/errors.php
+    - /usr/local/pnp4nagios/lib/kohana/system/i18n/ru_RU/errors.php
+    - /usr/local/pnp4nagios/share/index.php
+
+- name: Ignore php deprecation notices in pnp4nagios
+  ansible.builtin.replace:
+    path: "{{ item }}"
+    regexp: 'error_reporting\((.*~2048)\)'
+    replace: 'error_reporting(\1 & ~E_DEPRECATED)'
+  loop:
+    - /usr/local/pnp4nagios/lib/kohana/system/core/Kohana.php
+    - /usr/local/pnp4nagios/share/index.php
+
 - name: Fix magic quotes function calls
   ansible.builtin.replace:
     path: "{{ item }}"
