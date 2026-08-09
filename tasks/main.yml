@@ -5,41 +5,43 @@
 - name: Set OS dependent variables
   ansible.builtin.import_tasks: vars.yml
   tags:
-    - nagios-apache-config
-    - nagios-config
-    - nagios-nrdp
-    - nagios-nrdp-config
+    - nagioscore-apache-config
+    - nagioscore-config
+    - nagioscore-nrdp
+    - nagioscore-nrdp-config
+    - nagioscore-pnp4nagios
+    - nagioscore-nrdp
 
 - name: Install OS packages
   ansible.builtin.import_tasks: install-os.yml
   tags:
-    - ansible_nagioscore
-    - ansible_nagioscore-install
+    - nagioscore
+    - nagioscore-install
 
 - name: Configure network
   ansible.builtin.import_tasks: network.yaml
   tags:
-    - ansible_nagioscore
-    - ansible_nagioscore-install
+    - nagioscore
+    - nagioscore-install
 
 - name: Configure postfix
   ansible.builtin.import_tasks: postfix.yaml
   tags:
-    - ansible_nagioscore
-    - ansible_nagioscore-install
+    - nagioscore
+    - nagioscore-install
 
 - name: Configure apache ssl
   ansible.builtin.import_tasks: apache-ssl.yaml
   tags:
-    - ansible_nagioscore
-    - ansible_nagioscore-install
+    - nagioscore
+    - nagioscore-install
 
 - name: Configure apache
   ansible.builtin.import_tasks: apache.yaml
   tags:
-    - ansible_nagioscore
-    - ansible_nagioscore-install
-    - nagios-apache-config
+    - nagioscore
+    - nagioscore-install
+    - nagioscore-apache-config
 
 - name: Assert nagiosadmin password is set
   ansible.builtin.assert:
@@ -51,42 +53,43 @@
       in your inventory vault or the htpasswd file will never be created and
       Apache will 500 on every request (AuthUserFile missing).
   tags:
-    - ansible_nagioscore
-    - ansible_nagioscore-install
+    - nagioscore
+    - nagioscore-install
 
 - name: Configure nagios
   ansible.builtin.import_tasks: nagios.yaml
   tags:
-    - ansible_nagioscore
-    - ansible_nagioscore-install
+    - nagioscore
+    - nagioscore-install
 
 - name: Install nrdp
   ansible.builtin.import_tasks: nagios_nrdp-install.yaml
   tags:
-    - ansible_nagioscore
-    - ansible_nagioscore-install
-    - nagios-nrdp
+    - nagioscore
+    - nagioscore-install
+    - nagioscore-nrdp
   when: install_nrdp | bool
 
 - name: Configure nrdp
   ansible.builtin.import_tasks: nagios_nrdp-config.yaml
   tags:
-    - ansible_nagioscore
-    - ansible_nagioscore-install
-    - nagios-nrdp
-    - nagios-nrdp-config
+    - nagioscore
+    - nagioscore-install
+    - nagioscore-nrdp
+    - nagioscore-nrdp-config
   when: install_nrdp | bool
 
 - name: Configure pnp4nagios
   ansible.builtin.import_tasks: pnp4nagios.yaml
   tags:
-    - ansible_nagioscore
-    - ansible_nagioscore-install
+    - nagioscore
+    - nagioscore-install
+    - nagioscore-pnp4nagios
   when: install_pnp4nagios | bool
 
 - name: Configure nagios monitoring objects
   ansible.builtin.import_tasks: nagios_config.yaml
   tags:
-    - ansible_nagioscore
-    - ansible_nagioscore-config
+    - nagioscore
+    - nagioscore-config
     - nagios-config

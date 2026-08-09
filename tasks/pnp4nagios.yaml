@@ -85,13 +85,21 @@
     regexp: 'function Services_JSON_Error\('
     replace: 'function _construct('
 
-- name: Fix Input.php magic quotes references
-  ansible.builtin.lineinfile:
-    path: /usr/local/pnp4nagios/lib/kohana/system/libraries/Input.php
-    regexp: '(.*_magic_quotes_.*)'
-    state: absent
+- name: Fix utf8.php mbstring overload constant
+  ansible.builtin.replace:
+    path: /usr/local/pnp4nagios/lib/kohana/system/core/utf8.php
+    regexp: 'MB_OVERLOAD_STRING'
+    replace: '2'
+
+- name: Fix magic quotes function calls
+  ansible.builtin.replace:
+    path: "{{ item }}"
+    regexp: 'get_magic_quotes_(gpc|runtime)\(\)'
+    replace: 'false'
     backup: true
-  when: ansible_facts['os_family'] == 'Debian'
+  loop:
+    - /usr/local/pnp4nagios/lib/kohana/system/libraries/Input.php
+    - /usr/local/pnp4nagios/share/application/vendor/fpdf/fpdf.php
 
 - name: Remove npcd sysv init script
   ansible.builtin.file:
