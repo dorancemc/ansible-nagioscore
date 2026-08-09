@@ -12,10 +12,10 @@ galaxy_info:
         - "9"
     - name: Ubuntu
       versions:
-        - jammy
+        - noble
     - name: Debian
       versions:
-        - bullseye
+        - trixie
   galaxy_tags:
     - ansible_nagioscore
     - nagios
