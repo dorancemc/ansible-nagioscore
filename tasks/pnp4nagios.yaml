@@ -93,6 +93,22 @@
     backup: true
   when: ansible_facts['os_family'] == 'Debian'
 
+- name: Remove npcd sysv init script
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/init.d/npcd
+    - /etc/rc.d/init.d/npcd
+  notify: restart npcd
+
+- name: Deploy npcd systemd unit
+  ansible.builtin.template:
+    src: pnp4nagios/npcd.service
+    dest: /etc/systemd/system/npcd.service
+    mode: "0644"
+  notify: restart npcd
+
 - name: Deploy pnp4nagios npcd configuration
   ansible.builtin.template:
     src: pnp4nagios/npcd.cfg
