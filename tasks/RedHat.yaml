@@ -4,11 +4,28 @@
     autoremove: true
     update_cache: true
 
-- name: Install epel repository
+- name: Install oracle epel repository
   ansible.builtin.dnf:
-    name: oracle-epel-release-el8
+    name: "oracle-epel-release-el{{ ansible_facts['distribution_major_version'] }}"
     state: present
   when: ansible_facts['distribution'] == 'OracleLinux'
+
+- name: Import epel gpg key
+  ansible.builtin.rpm_key:
+    key: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_facts['distribution_major_version'] }}"
+    state: present
+  when: ansible_facts['distribution'] != 'OracleLinux'
+
+- name: Configure epel repository
+  ansible.builtin.yum_repository:
+    name: epel
+    description: Extra Packages for Enterprise Linux $releasever - $basearch
+    metalink: "https://mirrors.fedoraproject.org/metalink?repo=epel-$releasever&arch=$basearch"
+    gpgkey: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-$releasever"
+    gpgcheck: true
+    enabled: true
+    state: present
+  when: ansible_facts['distribution'] != 'OracleLinux'
 
 - name: Install postfix package
   ansible.builtin.dnf:
@@ -42,7 +59,6 @@
   ansible.builtin.dnf:
     name: "{{ nrpe_packages }}"
     state: present
-    enablerepo: PowerTools
 
 - name: Install essential packages
   ansible.builtin.dnf:
