@@ -34,6 +34,47 @@
   failed_when: ansible_nagioscore_pnp4nagios_build.results | default([]) | selectattr('rc', 'defined') | rejectattr('rc', 'equalto', 0) | list | length > 0
   register: ansible_nagioscore_pnp4nagios_build
 
+- name: Create pnp4nagios data directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ nagios.user }}"
+    group: "{{ nagios.group }}"
+    mode: "0755"
+    setype: nagios_var_lib_t
+  loop:
+    - /var/lib/pnp4nagios
+    - /var/lib/pnp4nagios/perfdata
+    - /var/lib/pnp4nagios/spool
+    - /var/lib/pnp4nagios/stats
+
+- name: Create pnp4nagios log directory
+  ansible.builtin.file:
+    path: /var/log/pnp4nagios
+    state: directory
+    owner: "{{ nagios.user }}"
+    group: "{{ nagios.group }}"
+    mode: "0755"
+    setype: nagios_log_t
+
+- name: Check nagios pnp4nagios selinux boolean
+  ansible.builtin.command:
+    cmd: getsebool nagios_run_pnp4nagios
+  register: ansible_nagioscore_pnp4nagios_sebool
+  changed_when: false
+  failed_when: false
+  when: ansible_facts['selinux']['status'] | default('disabled') == 'enabled'
+
+- name: Enable nagios pnp4nagios selinux boolean
+  ansible.builtin.command:
+    cmd: setsebool -P nagios_run_pnp4nagios on
+  register: ansible_nagioscore_pnp4nagios_setsebool
+  changed_when: ansible_nagioscore_pnp4nagios_setsebool.rc == 0
+  failed_when: ansible_nagioscore_pnp4nagios_setsebool.rc != 0
+  when:
+    - ansible_facts['selinux']['status'] | default('disabled') == 'enabled'
+    - "'--> off' in ansible_nagioscore_pnp4nagios_sebool.stdout | default('')"
+
 - name: Download api.php for grafana integration
   ansible.builtin.get_url:
     url: https://github.com/lingej/pnp-metrics-api/raw/master/application/controller/api.php
@@ -73,6 +114,12 @@
     regexp: 'if\(sizeof\(\$pages'
     replace: 'if(is_array($pages) && sizeof($pages'
 
+- name: Fix data.php libxml_clear_errors arguments
+  ansible.builtin.replace:
+    path: /usr/local/pnp4nagios/share/application/models/data.php
+    regexp: 'libxml_clear_errors\([^)]*\)'
+    replace: 'libxml_clear_errors()'
+
 - name: Fix json.php Services_JSON constructor
   ansible.builtin.replace:
     path: /usr/local/pnp4nagios/share/application/lib/json.php
@@ -100,6 +147,22 @@
   loop:
     - /usr/local/pnp4nagios/lib/kohana/system/libraries/Input.php
     - /usr/local/pnp4nagios/share/application/vendor/fpdf/fpdf.php
+
+- name: Relocate pnp4nagios log paths
+  ansible.builtin.replace:
+    path: /usr/local/pnp4nagios/etc/process_perfdata.cfg
+    regexp: '/usr/local/pnp4nagios/var/(npcd|perfdata)\.log'
+    replace: '/var/log/pnp4nagios/\1.log'
+
+- name: Relocate pnp4nagios data paths
+  ansible.builtin.replace:
+    path: "{{ item }}"
+    regexp: '/usr/local/pnp4nagios/var'
+    replace: '/var/lib/pnp4nagios'
+  loop:
+    - /usr/local/pnp4nagios/etc/config.php
+    - /usr/local/pnp4nagios/etc/config_local.php
+    - /usr/local/pnp4nagios/etc/process_perfdata.cfg
 
 - name: Remove npcd sysv init script
   ansible.builtin.file:

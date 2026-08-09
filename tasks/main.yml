@@ -1,16 +1,20 @@
 ---
 - name: Set timezone
   ansible.builtin.import_tasks: timezone.yml
+  tags:
+    - nagioscore
+    - nagioscore-install
 
 - name: Set OS dependent variables
   ansible.builtin.import_tasks: vars.yml
   tags:
+    - nagioscore
     - nagioscore-apache-config
     - nagioscore-config
+    - nagioscore-install
     - nagioscore-nrdp
     - nagioscore-nrdp-config
     - nagioscore-pnp4nagios
-    - nagioscore-nrdp
 
 - name: Install OS packages
   ansible.builtin.import_tasks: install-os.yml
@@ -92,4 +96,3 @@
   tags:
     - nagioscore
     - nagioscore-config
-    - nagios-config

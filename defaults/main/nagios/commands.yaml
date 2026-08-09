@@ -30,8 +30,8 @@ nagios_commands_definition_default:
   check_dns: $USER1$/check_dns -H $ARG1$ -s $ARG2$ -a $ARG3$ $ARG4$
   check_domainexpiration: $USER1$/other/check_domain.sh -d $ARG1$ -w $ARG2$ -c $ARG3$
   # commands for performance data
-  process_service_perfdata_file: /bin/mv /usr/local/pnp4nagios/var/service-perfdata /usr/local/pnp4nagios/var/spool/service-perfdata.$TIMET$
-  process_host_perfdata_file: /bin/mv /usr/local/pnp4nagios/var/host-perfdata /usr/local/pnp4nagios/var/spool/host-perfdata.$TIMET$
+  process_service_perfdata_file: /bin/mv /var/lib/pnp4nagios/service-perfdata /var/lib/pnp4nagios/spool/service-perfdata.$TIMET$
+  process_host_perfdata_file: /bin/mv /var/lib/pnp4nagios/host-perfdata /var/lib/pnp4nagios/spool/host-perfdata.$TIMET$
   # local commands
   check_local_disk: $USER1$/check_disk -w $ARG1$ -c $ARG2$ -p $ARG3$
   check_local_load: $USER1$/check_load -w $ARG1$ -c $ARG2$
