@@ -1,13 +1,74 @@
 ---
-
-- name: update user to htpasswd file {{ _contact }}
-  htpasswd:
+- name: Check htpasswd file status
+  ansible.builtin.stat:
     path: "{{ nagios.passwd_file }}"
-    name: "{{ _contact }}"
-    password: "{{ nagios_contacts[_contact]['password'] }}"
-    state: "{{ nagios_contacts[_contact]['state'] | default('present') }}"
+  register: __nagios_htpasswd_file
+
+- name: Verify htpasswd user password
+  ansible.builtin.command:
+    cmd: htpasswd -vb "{{ nagios.passwd_file }}" "{{ __contact }}" "{{ nagios_contacts[__contact]['password'] }}"
+  register: __nagios_htpasswd_verify
+  changed_when: false
+  failed_when: false
+  no_log: true
+  diff: false
+  when:
+    - nagios_contacts[__contact]['password'] is defined
+    - nagios_contacts[__contact]['password'] | length > 0
+    - (nagios_contacts[__contact]['state'] | default('present')) == 'present'
+    - __nagios_htpasswd_file.stat.exists
+
+- name: Create htpasswd file with user
+  ansible.builtin.command:
+    cmd: htpasswd -cb "{{ nagios.passwd_file }}" "{{ __contact }}" "{{ nagios_contacts[__contact]['password'] }}"
+  register: __nagios_htpasswd_create
+  changed_when: __nagios_htpasswd_create.rc == 0
+  failed_when: __nagios_htpasswd_create.rc != 0
+  no_log: true
+  diff: false
+  when:
+    - nagios_contacts[__contact]['password'] is defined
+    - nagios_contacts[__contact]['password'] | length > 0
+    - (nagios_contacts[__contact]['state'] | default('present')) == 'present'
+    - not __nagios_htpasswd_file.stat.exists
+
+- name: Add or update htpasswd user
+  ansible.builtin.command:
+    cmd: htpasswd -b "{{ nagios.passwd_file }}" "{{ __contact }}" "{{ nagios_contacts[__contact]['password'] }}"
+  register: __nagios_htpasswd_update
+  changed_when: __nagios_htpasswd_update.rc == 0
+  failed_when: __nagios_htpasswd_update.rc != 0
+  no_log: true
+  diff: false
+  when:
+    - nagios_contacts[__contact]['password'] is defined
+    - nagios_contacts[__contact]['password'] | length > 0
+    - (nagios_contacts[__contact]['state'] | default('present')) == 'present'
+    - __nagios_htpasswd_file.stat.exists
+    - __nagios_htpasswd_verify.rc != 0
+
+- name: Remove htpasswd user
+  ansible.builtin.command:
+    cmd: htpasswd -D "{{ nagios.passwd_file }}" "{{ __contact }}"
+  register: __nagios_htpasswd_remove
+  changed_when: __nagios_htpasswd_remove.rc == 0
+  failed_when: __nagios_htpasswd_remove.rc not in [ 0, 2, 3 ]
+  no_log: true
+  diff: false
+  when:
+    - nagios_contacts[__contact]['password'] is defined
+    - nagios_contacts[__contact]['password'] | length > 0
+    - (nagios_contacts[__contact]['state'] | default('present')) == 'absent'
+    - __nagios_htpasswd_file.stat.exists
+
+- name: Set htpasswd file ownership
+  ansible.builtin.file:
+    path: "{{ nagios.passwd_file }}"
     owner: root
     group: "{{ apache.group }}"
-    mode: 0640
+    mode: "0640"
   no_log: true
-  when: nagios_contacts[_contact]['password'] is defined
+  diff: false
+  when: >
+    __nagios_htpasswd_file.stat.exists or
+    (__nagios_htpasswd_create.changed | default(false))

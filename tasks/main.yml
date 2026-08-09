@@ -1,48 +1,99 @@
 ---
-
-- name: set timezone
-  timezone:
-    name: "{{ time_zone }}"
-
-- name: set OS dependent variables
-  include_vars: '{{ item }}'
-  with_first_found:
-    - '{{ ansible_facts.distribution }}_{{ ansible_facts.distribution_major_version }}.yaml'
-    - '{{ ansible_facts.distribution }}.yaml'
-    - '{{ ansible_facts.os_family }}_{{ ansible_facts.distribution_major_version }}.yaml'
-    - '{{ ansible_facts.os_family }}.yaml'
+- name: Set timezone
+  ansible.builtin.import_tasks: timezone.yml
   tags:
-    - nagios-apache-config
-    - nagios-config
-    - nagios-nrdp
-    - nagios-nrdp-config
+    - nagioscore
+    - nagioscore-install
 
-- name: set OS dependent tasks
-  include_tasks: '{{ item }}'
-  with_first_found:
-    - '{{ ansible_facts.distribution }}_{{ ansible_facts.distribution_major_version }}.yaml'
-    - '{{ ansible_facts.distribution }}.yaml'
-    - '{{ ansible_facts.os_family }}_{{ ansible_facts.distribution_major_version }}.yaml'
-    - '{{ ansible_facts.os_family }}.yaml'
-
-- include_tasks: network.yaml
-
-- include_tasks: postfix.yaml
-
-- include_tasks: apache.yaml
+- name: Set OS dependent variables
+  ansible.builtin.import_tasks: vars.yml
   tags:
-    - nagios-apache-config
+    - nagioscore
+    - nagioscore-apache-config
+    - nagioscore-config
+    - nagioscore-install
+    - nagioscore-nrdp
+    - nagioscore-nrdp-config
+    - nagioscore-pnp4nagios
 
-- include_tasks: nagios.yaml
-
-- include_tasks: nagios_nrdp.yaml
-  when: install_nrdp
+- name: Install OS packages
+  ansible.builtin.import_tasks: install-os.yml
   tags:
-    - nagios-nrdp
+    - nagioscore
+    - nagioscore-install
 
-- include_tasks: pnp4nagios.yaml
-  when: install_pnp4nagios
-
-- include_tasks: nagios_config.yaml
+- name: Configure network
+  ansible.builtin.import_tasks: network.yaml
   tags:
-    - nagios-config
+    - nagioscore
+    - nagioscore-install
+
+- name: Configure postfix
+  ansible.builtin.import_tasks: postfix.yaml
+  tags:
+    - nagioscore
+    - nagioscore-install
+
+- name: Configure apache ssl
+  ansible.builtin.import_tasks: apache-ssl.yaml
+  tags:
+    - nagioscore
+    - nagioscore-install
+
+- name: Configure apache
+  ansible.builtin.import_tasks: apache.yaml
+  tags:
+    - nagioscore
+    - nagioscore-install
+    - nagioscore-apache-config
+
+- name: Assert nagiosadmin password is set
+  ansible.builtin.assert:
+    that:
+      - nagios_contacts.nagiosadmin.password is defined
+      - nagios_contacts.nagiosadmin.password | length > 0
+    fail_msg: >-
+      nagios_contacts.nagiosadmin.password is empty. Set vault_nagiosadmin_password
+      in your inventory vault or the htpasswd file will never be created and
+      Apache will 500 on every request (AuthUserFile missing).
+  tags:
+    - nagioscore
+    - nagioscore-install
+
+- name: Configure nagios
+  ansible.builtin.import_tasks: nagios.yaml
+  tags:
+    - nagioscore
+    - nagioscore-install
+
+- name: Install nrdp
+  ansible.builtin.import_tasks: nagios_nrdp-install.yaml
+  tags:
+    - nagioscore
+    - nagioscore-install
+    - nagioscore-nrdp
+  when: install_nrdp | bool
+
+- name: Configure nrdp
+  ansible.builtin.import_tasks: nagios_nrdp-config.yaml
+  tags:
+    - nagioscore
+    - nagioscore-install
+    - nagioscore-nrdp
+    - nagioscore-nrdp-config
+  when: install_nrdp | bool
+
+- name: Configure pnp4nagios
+  ansible.builtin.import_tasks: pnp4nagios.yaml
+  tags:
+    - nagioscore
+    - nagioscore-install
+    - nagioscore-pnp4nagios
+  when: install_pnp4nagios | bool
+
+- name: Configure nagios monitoring objects
+  ansible.builtin.import_tasks: nagios_config.yaml
+  tags:
+    - nagioscore
+    - nagioscore-config
+  when: nagioscore_config_mode != 'never'

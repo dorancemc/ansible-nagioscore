@@ -1,20 +1,25 @@
 ---
-
 galaxy_info:
-  author: dorancemc
-  description: Role to install Nagios Core and run hosts configuration
-  company: dorancemc
-  license: BSD
-  min_ansible_version: '2.12'
+  author: Dorance Martinez
+  company: DMCi.co
+  description: Install Nagios Core and apply hosts and services configuration.
+  role_name: ansible_nagioscore
+  license: Apache-2.0
+  min_ansible_version: 2.20
   platforms:
     - name: EL
       versions:
-        - '8'
+        - "9"
     - name: Ubuntu
       versions:
-        - jammy
+        - noble
     - name: Debian
       versions:
-        - bullseye
+        - trixie
+  galaxy_tags:
+    - ansible_nagioscore
+    - nagios
+    - monitoring
+    - linux
 
-  galaxy_tags: [nagios, monitoring, linux]
+dependencies: []

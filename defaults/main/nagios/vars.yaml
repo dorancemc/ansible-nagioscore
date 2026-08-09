@@ -8,6 +8,11 @@ nagios_service_template_default: generic-service
 nagios_clean_assets: false
 pnp4nagios_force_reinstall: false
 
+# once   write the base monitoring objects only where nothing exists yet
+# always this role owns the monitoring objects and overwrites them
+# never  another role owns the monitoring objects, do not touch them
+nagioscore_config_mode: once
+
 nagios_hostgroups:  # []
   local: []
   cloud: []

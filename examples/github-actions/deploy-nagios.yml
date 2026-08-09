@@ -1,0 +1,197 @@
+---
+name: Deploy nagios
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Inventory environment to deploy
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      limit:
+        description: Restrict the run to these hosts. Empty runs the whole inventory.
+        required: false
+        type: string
+        default: ''
+      tags:
+        description: Ansible tags. Empty runs the whole role.
+        required: false
+        type: string
+        default: ''
+      apply:
+        description: Apply the changes. When false, only the dry run is executed.
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-nagios-${{ inputs.environment }}
+  cancel-in-progress: false
+
+env:
+  ANSIBLE_CONFIG: ansible/ansible.cfg
+  CORE_VERSION: 2.20.*
+  ANSIBLE_FORCE_COLOR: '1'
+  PY_COLORS: '1'
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install tooling
+        run: pip install "ansible-core==${CORE_VERSION}" ansible-lint yamllint
+
+      - name: Install roles
+        run: |
+          set -euo pipefail
+          if [ -f ansible/requirements.yml ]; then
+            ansible-galaxy install -r ansible/requirements.yml
+          fi
+
+      - name: Run yamllint
+        run: yamllint -c .yamllint.yml ansible/
+
+      - name: Run ansible-lint
+        run: ansible-lint --offline ansible/
+
+      - name: Check playbook syntax
+        run: ansible-playbook --syntax-check -i localhost, ansible/playbooks/main.yml
+
+  check:
+    name: Dry run
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install ansible
+        run: pip install "ansible-core==${CORE_VERSION}"
+
+      - name: Install roles
+        run: |
+          set -euo pipefail
+          if [ -f ansible/requirements.yml ]; then
+            ansible-galaxy install -r ansible/requirements.yml
+          fi
+
+      - name: Configure ssh
+        env:
+          KNOWN_HOSTS: ${{ secrets.ANSIBLE_KNOWN_HOSTS }}
+          SSH_KEY: ${{ secrets.ANSIBLE_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          install -m 0700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 0600 ~/.ssh/id_ed25519
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 0644 ~/.ssh/known_hosts
+
+      - name: Write vault password
+        env:
+          VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$VAULT_PASSWORD" > "$RUNNER_TEMP/vault_pass"
+          chmod 0600 "$RUNNER_TEMP/vault_pass"
+
+      - name: Run playbook in check mode
+        env:
+          RUN_LIMIT: ${{ inputs.limit }}
+          RUN_TAGS: ${{ inputs.tags }}
+          INVENTORY: ansible/inventory/${{ inputs.environment }}/hosts.ini
+        run: |
+          set -euo pipefail
+          args=(-i "$INVENTORY" --vault-password-file "$RUNNER_TEMP/vault_pass")
+          if [ -n "$RUN_LIMIT" ]; then
+            args+=(--limit "$RUN_LIMIT")
+          fi
+          if [ -n "$RUN_TAGS" ]; then
+            args+=(--tags "$RUN_TAGS")
+          fi
+          ansible-playbook "${args[@]}" --check --diff ansible/playbooks/main.yml
+
+      - name: Remove vault password
+        if: always()
+        run: rm -f "$RUNNER_TEMP/vault_pass"
+
+  deploy:
+    name: Apply
+    needs: check
+    if: inputs.apply
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install ansible
+        run: pip install "ansible-core==${CORE_VERSION}"
+
+      - name: Install roles
+        run: |
+          set -euo pipefail
+          if [ -f ansible/requirements.yml ]; then
+            ansible-galaxy install -r ansible/requirements.yml
+          fi
+
+      - name: Configure ssh
+        env:
+          KNOWN_HOSTS: ${{ secrets.ANSIBLE_KNOWN_HOSTS }}
+          SSH_KEY: ${{ secrets.ANSIBLE_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          install -m 0700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 0600 ~/.ssh/id_ed25519
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 0644 ~/.ssh/known_hosts
+
+      - name: Write vault password
+        env:
+          VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$VAULT_PASSWORD" > "$RUNNER_TEMP/vault_pass"
+          chmod 0600 "$RUNNER_TEMP/vault_pass"
+
+      - name: Run playbook
+        env:
+          RUN_LIMIT: ${{ inputs.limit }}
+          RUN_TAGS: ${{ inputs.tags }}
+          INVENTORY: ansible/inventory/${{ inputs.environment }}/hosts.ini
+        run: |
+          set -euo pipefail
+          args=(-i "$INVENTORY" --vault-password-file "$RUNNER_TEMP/vault_pass")
+          if [ -n "$RUN_LIMIT" ]; then
+            args+=(--limit "$RUN_LIMIT")
+          fi
+          if [ -n "$RUN_TAGS" ]; then
+            args+=(--tags "$RUN_TAGS")
+          fi
+          ansible-playbook "${args[@]}" --diff ansible/playbooks/main.yml
+
+      - name: Remove vault password
+        if: always()
+        run: rm -f "$RUNNER_TEMP/vault_pass"
