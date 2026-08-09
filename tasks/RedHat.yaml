@@ -1,49 +1,55 @@
 ---
+- name: Update dnf cache
+  ansible.builtin.dnf:
+    autoremove: true
+    update_cache: true
 
-- name: dnf update cache
-  dnf:
-    autoremove: yes
-    update_cache: yes
-
-- name: installing epel repo
-  dnf:
+- name: Install epel repository
+  ansible.builtin.dnf:
     name: oracle-epel-release-el8
-    state: installed
-  when: ansible_facts.distribution == 'OracleLinux'
+    state: present
+  when: ansible_facts['distribution'] == 'OracleLinux'
 
-- name: Install postfix and dependencies
-  dnf:
-    name: ['postfix']
+- name: Install postfix package
+  ansible.builtin.dnf:
+    name:
+      - postfix
     state: present
 
-- name: Install HTTPD and OpenSSL
-  dnf:
-    name: ['httpd', 'php-fpm', 'httpd-tools', 'mod_ssl', 'openssl']
+- name: Install apache and openssl packages
+  ansible.builtin.dnf:
+    name:
+      - httpd
+      - httpd-tools
+      - mod_ssl
+      - openssl
+      - php-fpm
     state: present
 
-- name: Make sure php-fpm service unit is running and enabled
-  systemd:
-    state: started
-    enabled: yes
+- name: Start php-fpm service
+  ansible.builtin.systemd:
     name: php-fpm
+    state: started
+    enabled: true
 
 - name: Install nagios core packages
-  dnf:
-    name: ['nagios']
+  ansible.builtin.dnf:
+    name:
+      - nagios
     state: present
 
 - name: Install nagios plugins
-  dnf:
+  ansible.builtin.dnf:
     name: "{{ nrpe_packages }}"
     state: present
     enablerepo: PowerTools
 
 - name: Install essential packages
-  dnf:
+  ansible.builtin.dnf:
     name: "{{ essential_packages }}"
     state: present
 
-- name: Install rrdtool and dependencies
-  dnf:
+- name: Install rrdtool packages
+  ansible.builtin.dnf:
     name: "{{ rrdtool_packages }}"
     state: present

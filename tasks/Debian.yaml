@@ -1,43 +1,58 @@
 ---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
 
-- name: apt update cache
-  apt:
-    update_cache: yes
-    cache_valid_time: 86400 #One day
-
-- name: Install postfix and dependencies
-  apt:
-    name: ['postfix']
+- name: Install postfix package
+  ansible.builtin.apt:
+    name:
+      - postfix
     state: present
-  become: true
+    update_cache: true
+    cache_valid_time: 3600
 
-- name: Install HTTPD and OpenSSL
-  apt:
-    name: ['apache2', 'apache2-utils', 'openssl']
+- name: Install apache and openssl packages
+  ansible.builtin.apt:
+    name:
+      - apache2
+      - apache2-utils
+      - openssl
     state: present
+    update_cache: true
+    cache_valid_time: 3600
 
 - name: Install nagios core packages
-  apt:
-    name: ['nagios4']
+  ansible.builtin.apt:
+    name:
+      - nagios4
     state: present
+    update_cache: true
+    cache_valid_time: 3600
 
 - name: Install nagios plugins
-  apt:
+  ansible.builtin.apt:
     name: "{{ nrpe_packages }}"
     state: present
+    update_cache: true
+    cache_valid_time: 3600
 
 - name: Install essential packages
-  apt:
+  ansible.builtin.apt:
     name: "{{ essential_packages }}"
     state: present
+    update_cache: true
+    cache_valid_time: 3600
 
-- name: Install rrdtool and dependencies
-  apt:
+- name: Install rrdtool packages
+  ansible.builtin.apt:
     name: "{{ rrdtool_packages }}"
     state: present
+    update_cache: true
+    cache_valid_time: 3600
 
-- name: Add the apache user to nagios groups  # To allow writes on nagios.cmd file
-  user:
+- name: Add apache user to nagios group
+  ansible.builtin.user:
     name: "{{ apache.user }}"
     groups: "{{ nagios.group }}"
-    append: yes
+    append: true

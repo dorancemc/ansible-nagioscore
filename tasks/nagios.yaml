@@ -1,55 +1,55 @@
 ---
-- name: start nagios
-  service:
-    name: '{{ nagios.service_name }}'
+- name: Start nagios service
+  ansible.builtin.service:
+    name: "{{ nagios.service_name }}"
     state: started
-    enabled: yes
+    enabled: true
 
-- name: add users to htpasswd file
-  include_tasks: "nagios_httpasswd.yaml"
-  with_items: "{{ nagios_contacts }}"
+- name: Add users to htpasswd file
+  ansible.builtin.include_tasks: nagios_httpasswd.yaml
+  loop: "{{ nagios_contacts | dict2items | map(attribute='key') | list }}"
   loop_control:
-    loop_var: _contact
-  no_log: true
+    loop_var: __contact
 
-- name: create folder
-  file:
+- name: Create checkresults directory
+  ansible.builtin.file:
     state: directory
     path: "{{ nagios.var_spool_path }}/checkresults"
     owner: "{{ nagios.user }}"
     group: "{{ nagios.group }}"
-    mode: '0750'
+    mode: "0750"
 
-- name: create resource config
-  template:
+- name: Create resource config
+  ansible.builtin.template:
     src: nagios/etc/resource.cfg
     dest: "{{ nagios.etc_path }}/resource.cfg"
     owner: "{{ nagios.user }}"
     group: "{{ nagios.group }}"
-    mode: 0664
-
-- name: create nagios config
-  template:
-    src: nagios/etc/{{ item }}
-    dest: "{{ nagios.etc_path }}/{{ item }}"
-    backup: yes
-    mode: 0664
+    mode: "0664"
   notify: reload nagios
-  with_items:
-    - nagios.cfg
-    - cgi.cfg
 
-- name: assets folder creation
-  file:
+- name: Create nagios config files
+  ansible.builtin.template:
+    src: "nagios/etc/{{ item }}"
+    dest: "{{ nagios.etc_path }}/{{ item }}"
+    backup: true
+    mode: "0664"
+  notify: reload nagios
+  loop:
+    - cgi.cfg
+    - nagios.cfg
+
+- name: Create nagios asset directories
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ nagios.user }}"
     group: "{{ nagios.group }}"
-    mode: 0750
-  with_items: "{{ __nagios_config_parameters.cfg_dir }}"
+    mode: "0750"
+  loop: "{{ __nagios_config_parameters.cfg_dir }}"
 
 - name: Download check_ncpa.py
-  get_url:
+  ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/NagiosEnterprises/ncpa/master/client/check_ncpa.py
     dest: "{{ nagios.plugins_path }}/check_ncpa.py"
-    mode: '0755'
+    mode: "0755"

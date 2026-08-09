@@ -1,0 +1,44 @@
+---
+- name: Check if nrdp folder exists
+  ansible.builtin.stat:
+    path: /usr/local/nrdp
+  register: ansible_nagioscore_nrdp_path
+
+- name: Create temporary directory
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: nrdp
+  register: ansible_nagioscore_nrdp_tempfolder
+  changed_when: false
+  when: not ansible_nagioscore_nrdp_path.stat.exists or nrdp_force_reinstall | bool
+
+- name: Download nrdp archive
+  ansible.builtin.unarchive:
+    src: "https://github.com/NagiosEnterprises/nrdp/archive/{{ nrdp_version }}.tar.gz"
+    dest: "{{ ansible_nagioscore_nrdp_tempfolder.path }}"
+    remote_src: true
+    creates: "{{ ansible_nagioscore_nrdp_tempfolder.path }}/nrdp-{{ nrdp_version }}"
+  changed_when: false
+  when: not ansible_nagioscore_nrdp_path.stat.exists or nrdp_force_reinstall | bool
+
+- name: Create nrdp directory
+  ansible.builtin.file:
+    path: /usr/local/nrdp
+    state: directory
+    owner: "{{ nagios.user }}"
+    group: "{{ nagios.group }}"
+    mode: "0755"
+
+- name: Synchronize nrdp files
+  ansible.builtin.command:
+    cmd: rsync -a --perms --itemize-changes "{{ ansible_nagioscore_nrdp_tempfolder.path }}/nrdp-{{ nrdp_version }}/{{ item }}" /usr/local/nrdp/
+  register: __nagios_rsync_nrdp
+  delegate_to: "{{ inventory_hostname }}"
+  loop:
+    - CHANGES.md
+    - LICENSE.md
+    - clients
+    - server
+  changed_when: __nagios_rsync_nrdp.stdout | length > 0
+  failed_when: __nagios_rsync_nrdp.rc != 0
+  when: not ansible_nagioscore_nrdp_path.stat.exists or nrdp_force_reinstall | bool

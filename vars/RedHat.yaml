@@ -31,51 +31,42 @@ apache:
   key_path: /etc/pki/tls/private
 
 essential_packages:
-  - sysstat
-  - whois
   - python3-passlib
   - rsync
+  - sysstat
+  - whois
 
 nrpe_packages:
   - nagios-plugins
-  # - nagios-plugins-apt
   - nagios-plugins-dig
   - nagios-plugins-disk
   - nagios-plugins-dns
   - nagios-plugins-fping
   - nagios-plugins-http
   - nagios-plugins-icmp
-  # - nagios-plugins-ifoperstatus
-  # - nagios-plugins-ifstatus
   - nagios-plugins-load
   - nagios-plugins-log
-  # - nagios-plugins-mailq
-  # - nagios-plugins-mysql
   - nagios-plugins-nagios
   - nagios-plugins-nrpe
   - nagios-plugins-ntp
   - nagios-plugins-ping
   - nagios-plugins-procs
-  # - nagios-plugins-sensors
   - nagios-plugins-smtp
   - nagios-plugins-snmp
   - nagios-plugins-ssh
-  # - nagios-plugins-ssl_validity
-  # - nagios-plugins-swap
   - nagios-plugins-tcp
-  # - nagios-plugins-time
   - nagios-plugins-uptime
   - nagios-plugins-users
 
 rrdtool_packages:
-  - rrdtool
-  - rrdtool-perl
-  - perl-Time-HiRes
-  - perl-GD
-  - perl-Getopt-Long
-  - php-gd
-  - php-xml
-  - php-mbstring
-  - php-zip
   - gcc
   - make
+  - perl-GD
+  - perl-Getopt-Long
+  - perl-Time-HiRes
+  - php-gd
+  - php-mbstring
+  - php-xml
+  - php-zip
+  - rrdtool
+  - rrdtool-perl

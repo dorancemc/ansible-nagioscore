@@ -1,212 +1,191 @@
 ---
+- name: Validate nagios configuration prerequisites
+  ansible.builtin.assert:
+    that:
+      - nagios.command is defined
+      - nagios.etc_path is defined
+      - __nagios_config_parameters.cfg_dir | length > 0
+    fail_msg: Nagios configuration variables are not defined.
 
-- name: create temporary directory
-  tempfile:
+- name: Create temporary directory
+  ansible.builtin.tempfile:
     state: directory
     suffix: nagios
-  register: tempfolder
+  register: ansible_nagioscore_config_tempfolder
   changed_when: false
-  tags:
-    - nagios-config
 
-- name: assets folder creation
-  file:
-    path: "{{ tempfolder.path }}/{{ item|basename }}"
+- name: Create temporary asset directories
+  ansible.builtin.file:
+    path: "{{ ansible_nagioscore_config_tempfolder.path }}/{{ item | basename }}"
     state: directory
     owner: "{{ nagios.user }}"
     group: "{{ nagios.group }}"
-    mode: 0750
-  with_items: "{{ __nagios_config_parameters.cfg_dir }}"
+    mode: "0750"
+  loop: "{{ __nagios_config_parameters.cfg_dir }}"
   changed_when: false
-  tags:
-    - nagios-config
 
-- name: change tempfile ownership
+- name: Set temporary directory ownership
   ansible.builtin.file:
-    path: "{{ tempfolder.path }}"
+    path: "{{ ansible_nagioscore_config_tempfolder.path }}"
     owner: "{{ nagios.user }}"
     group: "{{ nagios.group }}"
   changed_when: false
-  tags:
-    - nagios-config
 
-- name: folders synchronization to temp folder
-  synchronize:
-    src: "{{ nagios.etc_path }}/{{ item|basename }}/"
-    dest: "{{ tempfolder.path }}/{{ item|basename }}/"
-    owner: yes
-    group: yes
-    perms: yes
+- name: Synchronize asset folders to temporary directory
+  ansible.builtin.command:
+    cmd: rsync -a --owner --group --perms --itemize-changes "{{ nagios.etc_path }}/{{ item | basename }}/" "{{ ansible_nagioscore_config_tempfolder.path }}/{{ item | basename }}/"
+  register: __nagios_rsync_assets_temp
   delegate_to: "{{ inventory_hostname }}"
-  with_items:
-    - "{{ __nagios_config_parameters.cfg_dir }}"
+  loop: "{{ __nagios_config_parameters.cfg_dir }}"
   changed_when: false
-  when: not nagios_clean_assets
-  tags:
-    - nagios-config
+  failed_when: __nagios_rsync_assets_temp.rc != 0
+  when: not nagios_clean_assets | bool
 
-- name: files synchronization to temp folder
-  synchronize:
-    src: "{{ nagios.etc_path }}/{{ item }}"
-    dest: "{{ tempfolder.path }}/{{ item }}"
-    owner: yes
-    group: yes
-    perms: yes
+- name: Synchronize config files to temporary directory
+  ansible.builtin.command:
+    cmd: rsync -a --owner --group --perms --itemize-changes "{{ nagios.etc_path }}/{{ item }}" "{{ ansible_nagioscore_config_tempfolder.path }}/{{ item }}"
+  register: __nagios_rsync_files_temp
   delegate_to: "{{ inventory_hostname }}"
-  with_items:
+  loop:
     - nagios.cfg
     - resource.cfg
   changed_when: false
-  when: not nagios_clean_assets
-  tags:
-    - nagios-config
+  failed_when: __nagios_rsync_files_temp.rc != 0
+  when: not nagios_clean_assets | bool
 
-- name: update resource config
-  template:
-    src: nagios/etc/{{ item }}
-    dest: "{{ tempfolder.path }}/{{ item }}"
-    mode: 0664
-  with_items:
+- name: Update temporary resource config
+  ansible.builtin.template:
+    src: "nagios/etc/{{ item }}"
+    dest: "{{ ansible_nagioscore_config_tempfolder.path }}/{{ item }}"
+    mode: "0664"
+  loop:
     - resource.cfg
-  register: resourcecfg
-  tags:
-    - nagios-config
+  register: ansible_nagioscore_resourcecfg
 
-- name: update nagios config
-  template:
-    src: nagios/etc/{{ item }}
-    dest: "{{ tempfolder.path }}/{{ item }}"
-    mode: 0664
-  with_items:
+- name: Update temporary nagios config
+  ansible.builtin.template:
+    src: "nagios/etc/{{ item }}"
+    dest: "{{ ansible_nagioscore_config_tempfolder.path }}/{{ item }}"
+    mode: "0664"
+  loop:
     - nagios.cfg
-  register: nagioscfg
-  tags:
-    - nagios-config
+  register: ansible_nagioscore_nagioscfg
 
-- name: modify temp path for nagios.cfg file
-  replace:
-    path: "{{ tempfolder.path }}/nagios.cfg"
-    regexp: '{{ nagios.etc_path }}'
-    replace: '{{ tempfolder.path }}'
+- name: Update temporary nagios.cfg paths
+  ansible.builtin.replace:
+    path: "{{ ansible_nagioscore_config_tempfolder.path }}/nagios.cfg"
+    regexp: "{{ nagios.etc_path }}"
+    replace: "{{ ansible_nagioscore_config_tempfolder.path }}"
   changed_when: false
-  tags:
-    - nagios-config
 
-#templates
-- name: create nagios templates config
-  template:
+- name: Create temporary nagios templates config
+  ansible.builtin.template:
     src: "nagios/etc/templates/{{ item }}"
-    dest: "{{ tempfolder.path }}/templates/{{ item }}"
-    mode: 0664
-  with_items:
+    dest: "{{ ansible_nagioscore_config_tempfolder.path }}/templates/{{ item }}"
+    mode: "0664"
+  loop:
     - commands.cfg
     - contact_templates.cfg
     - host_templates.cfg
     - service_templates.cfg
     - time_templates.cfg
-  tags:
-    - nagios-config
 
-- name: create assets config
-  template:
+- name: Create temporary nagios assets config
+  ansible.builtin.template:
     src: "nagios/etc/assets/{{ item }}"
-    dest: "{{ tempfolder.path }}/assets/{{ item }}"
-    mode: 0664
-  with_items:
+    dest: "{{ ansible_nagioscore_config_tempfolder.path }}/assets/{{ item }}"
+    mode: "0664"
+  loop:
     - contacts.cfg
     - groups_definition.cfg
-  tags:
-    - nagios-config
 
-- name: list clients config
-  set_fact:
-    _nagios_hosts_files: "{{ _nagios_hosts_files|default([]) + [item.src] }}"
-  with_community.general.filetree: "{{ nagios_hosts_path }}/"
-  when: nagios_hosts_path is defined and item.state=='file'
+- name: Find client config files
+  ansible.builtin.find:
+    paths: "{{ nagios_hosts_path if nagios_hosts_path.startswith('/') else role_path ~ '/' ~ nagios_hosts_path }}"
+    patterns:
+      - "*.yaml"
+      - "*.yml"
+    file_type: file
+    recurse: true
+  register: __nagios_hosts_find
+  delegate_to: localhost
+  become: false
+  when: nagios_hosts_path is defined
   no_log: true
-  tags:
-    - nagios-config
 
-- name: create assets config
-  include_tasks: "host_definition.yaml"
-  with_items: "{{ _nagios_hosts_files }}"
-  when: _nagios_hosts_files is defined
+- name: List client config files
+  ansible.builtin.set_fact:
+    __nagios_hosts_files: "{{ __nagios_hosts_find.files | map(attribute='path') | list }}"
+  when: nagios_hosts_path is defined
+  no_log: true
+
+- name: Create host and service definitions
+  ansible.builtin.include_tasks: host_definition.yaml
+  loop: "{{ __nagios_hosts_files | default([]) }}"
   loop_control:
-    loop_var: _nagios_host_file
-    label: "{{ _nagios_host_file|basename }}"
-  tags:
-    - nagios-config
+    loop_var: __nagios_host_file
+    label: "{{ __nagios_host_file | basename }}"
 
-#validations
-- name: run command checking nagios config
-  shell: "{{ nagios.command }} -v {{ tempfolder.path }}/nagios.cfg"
-  register: nagios_conf_validation
-  ignore_errors: true
+- name: Validate nagios configuration
+  ansible.builtin.command:
+    cmd: "{{ nagios.command }} -v {{ ansible_nagioscore_config_tempfolder.path }}/nagios.cfg"
+  register: ansible_nagioscore_conf_validation
   changed_when: false
-  tags:
-    - nagios-config
+  failed_when: false
 
-- debug:
-    msg: "{{ nagios_conf_validation.stdout_lines }}"
-  tags:
-    - nagios-config
+- name: Show nagios configuration validation output
+  ansible.builtin.debug:
+    msg: "{{ ansible_nagioscore_conf_validation.stdout_lines }}"
 
-- name: update users to htpasswd file
-  include_tasks: "nagios_httpasswd.yaml"
-  with_items: "{{ nagios_contacts }}"
+- name: Update htpasswd users
+  ansible.builtin.include_tasks: nagios_httpasswd.yaml
+  loop: "{{ nagios_contacts | dict2items | map(attribute='key') | list }}"
   loop_control:
-    loop_var: _contact
-  no_log: true
-  when: nagios_conf_validation is defined and nagios_conf_validation.rc == 0
-  tags:
-    - nagios-config
+    loop_var: __contact
+  when:
+    - ansible_nagioscore_conf_validation is defined
+    - ansible_nagioscore_conf_validation.rc == 0
 
-- name: update resource config
-  template:
-    src: nagios/etc/{{ item }}
+- name: Update resource config
+  ansible.builtin.template:
+    src: "nagios/etc/{{ item }}"
     dest: "{{ nagios.etc_path }}/{{ item }}"
-    mode: 0664
-  with_items:
+    mode: "0664"
+  loop:
     - resource.cfg
-  when: resourcecfg.changed and nagios_conf_validation.rc == 0
+  when:
+    - ansible_nagioscore_resourcecfg.changed
+    - ansible_nagioscore_conf_validation.rc == 0
   notify: reload nagios
-  tags:
-    - nagios-config
 
-- name: update nagios config
-  template:
-    src: nagios/etc/{{ item }}
+- name: Update nagios config
+  ansible.builtin.template:
+    src: "nagios/etc/{{ item }}"
     dest: "{{ nagios.etc_path }}/{{ item }}"
-    mode: 0664
-  with_items:
+    mode: "0664"
+  loop:
     - nagios.cfg
-  when: nagioscfg.changed and nagios_conf_validation.rc == 0
+  when:
+    - ansible_nagioscore_nagioscfg.changed
+    - ansible_nagioscore_conf_validation.rc == 0
   notify: reload nagios
-  tags:
-    - nagios-config
 
-- name: folders synchronization to temp folder
-  synchronize:
-    src: "{{ tempfolder.path }}/{{ item|basename }}/"
-    dest: "{{ nagios.etc_path }}/{{ item|basename }}/"
-    owner: yes
-    group: yes
-    perms: yes
-    delete: yes
-    recursive: yes
+- name: Synchronize asset folders to nagios etc
+  ansible.builtin.command:
+    cmd: rsync -a --owner --group --perms --delete --itemize-changes "{{ ansible_nagioscore_config_tempfolder.path }}/{{ item | basename }}/" "{{ nagios.etc_path }}/{{ item | basename }}/"
+  register: __nagios_rsync_assets_etc
   delegate_to: "{{ inventory_hostname }}"
-  with_items:
-    - "{{ __nagios_config_parameters.cfg_dir }}"
-  when: nagios_conf_validation.rc == 0
+  loop: "{{ __nagios_config_parameters.cfg_dir }}"
+  changed_when: __nagios_rsync_assets_etc.stdout | length > 0
+  failed_when: __nagios_rsync_assets_etc.rc != 0
+  when: ansible_nagioscore_conf_validation.rc == 0
   notify: reload nagios
-  tags:
-    - nagios-config
 
-- name: remove temp folder
-  file:
-    path: "{{ tempfolder.path }}"
+- name: Remove temporary directory
+  ansible.builtin.file:
+    path: "{{ ansible_nagioscore_config_tempfolder.path }}"
     state: absent
-  when: tempfolder.path is defined and nagios_conf_validation.rc == 0
+  when:
+    - ansible_nagioscore_config_tempfolder.path is defined
+    - ansible_nagioscore_conf_validation.rc == 0
   changed_when: false
-  tags:
-    - nagios-config

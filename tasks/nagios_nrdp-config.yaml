@@ -1,0 +1,23 @@
+---
+- name: Deploy nrdp php configuration
+  ansible.builtin.template:
+    src: nrdp/config.inc.php
+    dest: /usr/local/nrdp/server/config.inc.php
+    mode: "0644"
+  no_log: true
+  diff: false
+
+- name: Set nrdp directory permissions
+  ansible.builtin.file:
+    path: /usr/local/nrdp/
+    owner: "{{ nagios.user }}"
+    group: "{{ nagios.group }}"
+    mode: u=rwX,g=rX,o=rX
+    recurse: true
+
+- name: Deploy nrdp apache configuration
+  ansible.builtin.template:
+    src: nrdp/nrdp.conf
+    dest: "{{ apache.sites_folder }}/nrdp.conf"
+    mode: "0644"
+  notify: restart apache

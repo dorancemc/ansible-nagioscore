@@ -31,25 +31,25 @@ apache:
   key_path: /etc/ssl
 
 essential_packages:
+  - python3-passlib
   - rsync
   - sysstat
-  - whois
-  - python3-passlib
   - vim
+  - whois
 
 nrpe_packages:
   - nagios-plugins-contrib
 
 rrdtool_packages:
-  - rrdtool
-  - librrds-perl
-  - libtime-hr-perl
+  - gcc
   - libgd-perl
   - libgetopt-simple-perl
+  - librrds-perl
+  - libtime-hr-perl
+  - make
   - php-gd
+  - php-mbstring
   - php-rrd
   - php-xml
-  - php-mbstring
   - php-zip
-  - gcc
-  - make
+  - rrdtool

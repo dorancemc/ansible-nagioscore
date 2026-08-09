@@ -1,6 +1,6 @@
 # https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/4/en/objectdefinitions.html#command
 ---
-nagios_commands_definition: []
+nagios_commands_definition: {}
 nagios_commands_definition_default:
   check_nrpe: $USER1$/check_nrpe -H $HOSTADDRESS$ -2 -c $ARG1$ $ARG2$
   # notifications

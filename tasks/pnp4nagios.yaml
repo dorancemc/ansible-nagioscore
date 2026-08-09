@@ -1,108 +1,101 @@
 ---
-
-###########
-# source: https://www.centlinux.com/2016/09/install-pnp4nagios-nagios-core-centos-7.html
-# This task will be removed in the next version, as pnp4nagios is no longer supported and is not compatible with php8.0.
-# Grafana Support: https://support.nagios.com/kb/article/nagios-core-using-grafana-with-pnp4nagios-803.html#Grafana_Config
-
-- name: check if pnp4nagios folder exists
-  stat:
+- name: Check if pnp4nagios folder exists
+  ansible.builtin.stat:
     path: /usr/local/pnp4nagios
-  register: pnp4nagiospath
+  register: ansible_nagioscore_pnp4nagios_path
 
-- name: create temporary directory
-  tempfile:
+- name: Create temporary directory
+  ansible.builtin.tempfile:
     state: directory
     suffix: pnp4nagios
-  register: tempfolder
+  register: ansible_nagioscore_pnp4nagios_tempfolder
   changed_when: false
-  when: not pnp4nagiospath.stat.exists or pnp4nagios_force_reinstall
+  when: not ansible_nagioscore_pnp4nagios_path.stat.exists or pnp4nagios_force_reinstall | bool
 
-- name: creates pnp4nagios
-  unarchive:
+- name: Download pnp4nagios archive
+  ansible.builtin.unarchive:
     src: https://downloads.sourceforge.net/project/pnp4nagios/PNP-0.6/pnp4nagios-0.6.26.tar.gz
-    dest: "{{ tempfolder.path }}"
-    remote_src: yes
-    creates: "{{ tempfolder.path }}/pnp4nagios-0.6.26"
-  when: not pnp4nagiospath.stat.exists or pnp4nagios_force_reinstall
+    dest: "{{ ansible_nagioscore_pnp4nagios_tempfolder.path }}"
+    remote_src: true
+    creates: "{{ ansible_nagioscore_pnp4nagios_tempfolder.path }}/pnp4nagios-0.6.26"
+  when: not ansible_nagioscore_pnp4nagios_path.stat.exists or pnp4nagios_force_reinstall | bool
 
-- name: makes pnp4nagios
-  command: chdir={{ tempfolder.path }}/pnp4nagios-0.6.26 {{ item }}
-  with_items:
+- name: Build and install pnp4nagios
+  ansible.builtin.command:
+    chdir: "{{ ansible_nagioscore_pnp4nagios_tempfolder.path }}/pnp4nagios-0.6.26"
+    cmd: "{{ item }}"
+    creates: /etc/httpd/conf.d/pnp4nagios.conf
+  loop:
     - ./configure
     - make all
     - make fullinstall
-  args:
-    creates: /etc/httpd/conf.d/pnp4nagios.conf
-  when: not pnp4nagiospath.stat.exists or pnp4nagios_force_reinstall
+  when: not ansible_nagioscore_pnp4nagios_path.stat.exists or pnp4nagios_force_reinstall | bool
+  changed_when: true
+  failed_when: ansible_nagioscore_pnp4nagios_build.results | default([]) | selectattr('rc', 'defined') | rejectattr('rc', 'equalto', 0) | list | length > 0
+  register: ansible_nagioscore_pnp4nagios_build
 
 - name: Download api.php for grafana integration
-  get_url:
+  ansible.builtin.get_url:
     url: https://github.com/lingej/pnp-metrics-api/raw/master/application/controller/api.php
     dest: /usr/local/pnp4nagios/share/application/controllers/api.php
     checksum: sha1:56fd36b2dde0fc6ab618740e8b2f877d0e6065ae
-    mode: '0644'
+    mode: "0644"
 
-- name: nagios configuration apache file
-  template:
+- name: Deploy pnp4nagios apache configuration
+  ansible.builtin.template:
     src: pnp4nagios/pnp4nagios.conf
     dest: "{{ apache.sites_folder }}/pnp4nagios.conf"
-    mode: 0644
+    mode: "0644"
   notify: restart apache
 
-- name: stat install.php pnp4nagios
-  stat:
+- name: Check pnp4nagios install.php file
+  ansible.builtin.stat:
     path: /usr/local/pnp4nagios/share/install.php
-  register: pnp4nagios_install_stat
+  register: ansible_nagioscore_pnp4nagios_install_stat
 
-# comment these 3 lines to validate the pnp4nagios installation
-- name: rename install.php to install.old
-  command: mv /usr/local/pnp4nagios/share/install.php /usr/local/pnp4nagios/share/install.old
-  when: pnp4nagios_install_stat.stat.exists
+- name: Rename install.php to install.old
+  ansible.builtin.command:
+    cmd: mv /usr/local/pnp4nagios/share/install.php /usr/local/pnp4nagios/share/install.old
+  when: ansible_nagioscore_pnp4nagios_install_stat.stat.exists
+  changed_when: true
+  failed_when: ansible_nagioscore_pnp4nagios_install_rename.rc != 0
+  register: ansible_nagioscore_pnp4nagios_install_rename
 
-# npcd issues: these commands needs to check after pnp4nagios updates
-# https://stackoverflow.com/questions/50077503/npcd-error-executed-command-exits-with-return-code-255:
-#   sed -i 's:my \$t1;:my @t1=();\n    my $t1=\\\@t1;:' /usr/local/pnp4nagios/libexec/process_perfdata.pl
-- name: issues on process_perfdata.pl file
-  replace:
+- name: Fix process_perfdata.pl perl variable
+  ansible.builtin.replace:
     path: /usr/local/pnp4nagios/libexec/process_perfdata.pl
     regexp: 'my \$t1;'
     replace: 'my @t1=();\n    my $t1=\\@t1;'
 
-# https://github.com/lingej/pnp4nagios/issues/148:
-#   sed -i 's:if(sizeof(\$pages:if(is_array(\$pages) \&\& sizeof(\$pages:' /usr/local/pnp4nagios/share/application/models/data.php
-- name: issues on data.php file
-  replace:
+- name: Fix data.php pages check
+  ansible.builtin.replace:
     path: /usr/local/pnp4nagios/share/application/models/data.php
     regexp: 'if\(sizeof\(\$pages'
     replace: 'if(is_array($pages) && sizeof($pages'
 
-# https://forum.checkmk.com/t/services-json-has-a-deprecated-constructor-centos8-fresh-install-with-1-6-0p6/14957/7
-#   sed -i 's:function Services_JSON(:function _construct(:' /usr/local/pnp4nagios/share/application/lib/json.php
-#   sed -i 's:function Services_JSON_Error(:function _construct(:' /usr/local/pnp4nagios/share/application/lib/json.php
-- name: issues on json.php file
-  replace:
+- name: Fix json.php Services_JSON constructor
+  ansible.builtin.replace:
     path: /usr/local/pnp4nagios/share/application/lib/json.php
     regexp: 'function Services_JSON\('
     replace: 'function _construct('
 
-- name: issues on json.php file
-  replace:
+- name: Fix json.php Services_JSON_Error constructor
+  ansible.builtin.replace:
     path: /usr/local/pnp4nagios/share/application/lib/json.php
     regexp: 'function Services_JSON_Error\('
     replace: 'function _construct('
 
-- name: issues on Input.php file with php7
-  lineinfile:
+- name: Fix Input.php magic quotes references
+  ansible.builtin.lineinfile:
     path: /usr/local/pnp4nagios/lib/kohana/system/libraries/Input.php
     regexp: '(.*_magic_quotes_.*)'
     state: absent
-    backup: yes
-  when: ansible_facts.os_family == 'Debian'
+    backup: true
+  when: ansible_facts['os_family'] == 'Debian'
 
-- name: pnp4nagios configuration file
-  template:
+- name: Deploy pnp4nagios npcd configuration
+  ansible.builtin.template:
     src: pnp4nagios/npcd.cfg
     dest: /usr/local/pnp4nagios/etc/npcd.cfg
-    mode: 0644
+    mode: "0644"
   notify: restart npcd
