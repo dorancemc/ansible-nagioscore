@@ -44,9 +44,17 @@
     setype: nagios_var_lib_t
   loop:
     - /var/lib/pnp4nagios
-    - /var/lib/pnp4nagios/perfdata
     - /var/lib/pnp4nagios/spool
     - /var/lib/pnp4nagios/stats
+
+- name: Create pnp4nagios perfdata directory
+  ansible.builtin.file:
+    path: /var/lib/pnp4nagios/perfdata
+    state: directory
+    owner: "{{ nagios.user }}"
+    group: "{{ nagios.group }}"
+    mode: "0755"
+    setype: httpd_sys_content_t
 
 - name: Create pnp4nagios log directory
   ansible.builtin.file:
@@ -74,6 +82,32 @@
   when:
     - ansible_facts['selinux']['status'] | default('disabled') == 'enabled'
     - "'--> off' in ansible_nagioscore_pnp4nagios_sebool.stdout | default('')"
+
+- name: Check pnp4nagios selinux file contexts
+  ansible.builtin.command:
+    cmd: semanage fcontext -l -C
+  register: ansible_nagioscore_pnp4nagios_fcontext
+  changed_when: false
+  failed_when: false
+  when: ansible_facts['selinux']['status'] | default('disabled') == 'enabled'
+
+- name: Set pnp4nagios perfdata selinux file context
+  ansible.builtin.command:
+    cmd: semanage fcontext -a -t httpd_sys_content_t "/var/lib/pnp4nagios/perfdata(/.*)?"
+  register: ansible_nagioscore_pnp4nagios_semanage
+  changed_when: ansible_nagioscore_pnp4nagios_semanage.rc == 0
+  failed_when: ansible_nagioscore_pnp4nagios_semanage.rc != 0
+  when:
+    - ansible_facts['selinux']['status'] | default('disabled') == 'enabled'
+    - "'/var/lib/pnp4nagios/perfdata' not in ansible_nagioscore_pnp4nagios_fcontext.stdout | default('')"
+
+- name: Restore pnp4nagios perfdata selinux context
+  ansible.builtin.command:
+    cmd: restorecon -Rv /var/lib/pnp4nagios/perfdata
+  register: ansible_nagioscore_pnp4nagios_restorecon
+  changed_when: ansible_nagioscore_pnp4nagios_restorecon.stdout | length > 0
+  failed_when: ansible_nagioscore_pnp4nagios_restorecon.rc != 0
+  when: ansible_facts['selinux']['status'] | default('disabled') == 'enabled'
 
 - name: Download api.php for grafana integration
   ansible.builtin.get_url:
