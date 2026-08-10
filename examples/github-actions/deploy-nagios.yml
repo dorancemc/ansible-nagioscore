@@ -38,6 +38,7 @@ concurrency:
 env:
   ANSIBLE_CONFIG: ansible/ansible.cfg
   ANSIBLE_VERSION: '13.3'
+  ANSIBLE_LINT_VERSION: '26.6.0'
   ANSIBLE_FORCE_COLOR: '1'
   PY_COLORS: '1'
   PYTHON_VERSION: '3.12'
@@ -54,7 +55,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install tooling
-        run: pip install "ansible==${ANSIBLE_VERSION}" ansible-lint yamllint
+        run: pip install "ansible==${ANSIBLE_VERSION}" "ansible-lint==${ANSIBLE_LINT_VERSION}" yamllint
 
       - name: Install roles
         run: |
