@@ -1,16 +1,16 @@
 ---
-- name: restart apache
+- name: Restart apache
   ansible.builtin.service:
     name: "{{ apache.service_name }}"
     state: restarted
     enabled: true
 
-- name: reload nagios
+- name: Reload nagios
   ansible.builtin.service:
     name: "{{ nagios.service_name }}"
     state: reloaded
 
-- name: restart npcd
+- name: Restart npcd
   ansible.builtin.systemd_service:
     name: npcd
     state: restarted

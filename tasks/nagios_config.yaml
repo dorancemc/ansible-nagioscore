@@ -159,7 +159,7 @@
   when:
     - ansible_nagioscore_resourcecfg.changed
     - ansible_nagioscore_conf_validation.rc == 0
-  notify: reload nagios
+  notify: Reload nagios
 
 - name: Update nagios config
   ansible.builtin.template:
@@ -171,7 +171,7 @@
   when:
     - ansible_nagioscore_nagioscfg.changed
     - ansible_nagioscore_conf_validation.rc == 0
-  notify: reload nagios
+  notify: Reload nagios
 
 - name: Synchronize asset folders to nagios etc
   ansible.builtin.command:
@@ -182,7 +182,7 @@
   changed_when: __nagios_rsync_assets_etc.stdout | length > 0
   failed_when: __nagios_rsync_assets_etc.rc != 0
   when: ansible_nagioscore_conf_validation.rc == 0
-  notify: reload nagios
+  notify: Reload nagios
 
 - name: Remove temporary directory
   ansible.builtin.file:

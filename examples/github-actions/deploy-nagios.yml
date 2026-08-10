@@ -37,7 +37,7 @@ concurrency:
 
 env:
   ANSIBLE_CONFIG: ansible/ansible.cfg
-  CORE_VERSION: 2.20.*
+  ANSIBLE_VERSION: '13.3'
   ANSIBLE_FORCE_COLOR: '1'
   PY_COLORS: '1'
   PYTHON_VERSION: '3.12'
@@ -54,7 +54,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install tooling
-        run: pip install "ansible-core==${CORE_VERSION}" ansible-lint yamllint
+        run: pip install "ansible==${ANSIBLE_VERSION}" ansible-lint yamllint
 
       - name: Install roles
         run: |
@@ -84,7 +84,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install ansible
-        run: pip install "ansible-core==${CORE_VERSION}"
+        run: pip install "ansible==${ANSIBLE_VERSION}"
 
       - name: Install roles
         run: |
@@ -147,7 +147,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install ansible
-        run: pip install "ansible-core==${CORE_VERSION}"
+        run: pip install "ansible==${ANSIBLE_VERSION}"
 
       - name: Install roles
         run: |

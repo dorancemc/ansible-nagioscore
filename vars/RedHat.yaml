@@ -31,6 +31,7 @@ apache:
   key_path: /etc/pki/tls/private
 
 essential_packages:
+  - policycoreutils-python-utils
   - python3-passlib
   - rsync
   - sysstat

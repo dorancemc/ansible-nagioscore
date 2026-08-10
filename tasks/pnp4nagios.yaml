@@ -65,41 +65,19 @@
     mode: "0755"
     setype: nagios_log_t
 
-- name: Check nagios pnp4nagios selinux boolean
-  ansible.builtin.command:
-    cmd: getsebool nagios_run_pnp4nagios
-  register: ansible_nagioscore_pnp4nagios_sebool
-  changed_when: false
-  failed_when: false
-  when: ansible_facts['selinux']['status'] | default('disabled') == 'enabled'
-
-- name: Enable nagios pnp4nagios selinux boolean
-  ansible.builtin.command:
-    cmd: setsebool -P nagios_run_pnp4nagios on
-  register: ansible_nagioscore_pnp4nagios_setsebool
-  changed_when: ansible_nagioscore_pnp4nagios_setsebool.rc == 0
-  failed_when: ansible_nagioscore_pnp4nagios_setsebool.rc != 0
-  when:
-    - ansible_facts['selinux']['status'] | default('disabled') == 'enabled'
-    - "'--> off' in ansible_nagioscore_pnp4nagios_sebool.stdout | default('')"
-
-- name: Check pnp4nagios selinux file contexts
-  ansible.builtin.command:
-    cmd: semanage fcontext -l -C
-  register: ansible_nagioscore_pnp4nagios_fcontext
-  changed_when: false
-  failed_when: false
+- name: Allow nagios to run pnp4nagios
+  ansible.posix.seboolean:
+    name: nagios_run_pnp4nagios
+    state: true
+    persistent: true
   when: ansible_facts['selinux']['status'] | default('disabled') == 'enabled'
 
 - name: Set pnp4nagios perfdata selinux file context
-  ansible.builtin.command:
-    cmd: semanage fcontext -a -t httpd_sys_content_t "/var/lib/pnp4nagios/perfdata(/.*)?"
-  register: ansible_nagioscore_pnp4nagios_semanage
-  changed_when: ansible_nagioscore_pnp4nagios_semanage.rc == 0
-  failed_when: ansible_nagioscore_pnp4nagios_semanage.rc != 0
-  when:
-    - ansible_facts['selinux']['status'] | default('disabled') == 'enabled'
-    - "'/var/lib/pnp4nagios/perfdata' not in ansible_nagioscore_pnp4nagios_fcontext.stdout | default('')"
+  community.general.sefcontext:
+    target: /var/lib/pnp4nagios/perfdata(/.*)?
+    setype: httpd_sys_content_t
+    state: present
+  when: ansible_facts['selinux']['status'] | default('disabled') == 'enabled'
 
 - name: Restore pnp4nagios perfdata selinux context
   ansible.builtin.command:
@@ -121,7 +99,7 @@
     src: pnp4nagios/pnp4nagios.conf
     dest: "{{ apache.sites_folder }}/pnp4nagios.conf"
     mode: "0644"
-  notify: restart apache
+  notify: Restart apache
 
 - name: Check pnp4nagios install.php file
   ansible.builtin.stat:
@@ -236,18 +214,18 @@
   loop:
     - /etc/init.d/npcd
     - /etc/rc.d/init.d/npcd
-  notify: restart npcd
+  notify: Restart npcd
 
 - name: Deploy npcd systemd unit
   ansible.builtin.template:
     src: pnp4nagios/npcd.service
     dest: /etc/systemd/system/npcd.service
     mode: "0644"
-  notify: restart npcd
+  notify: Restart npcd
 
 - name: Deploy pnp4nagios npcd configuration
   ansible.builtin.template:
     src: pnp4nagios/npcd.cfg
     dest: /usr/local/pnp4nagios/etc/npcd.cfg
     mode: "0644"
-  notify: restart npcd
+  notify: Restart npcd

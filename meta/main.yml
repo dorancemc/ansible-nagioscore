@@ -5,7 +5,7 @@ galaxy_info:
   description: Install Nagios Core and apply hosts and services configuration.
   role_name: ansible_nagioscore
   license: Apache-2.0
-  min_ansible_version: 2.20
+  min_ansible_version: "2.20"
   platforms:
     - name: EL
       versions:
@@ -17,7 +17,7 @@ galaxy_info:
       versions:
         - trixie
   galaxy_tags:
-    - ansible_nagioscore
+    - nagioscore
     - nagios
     - monitoring
     - linux

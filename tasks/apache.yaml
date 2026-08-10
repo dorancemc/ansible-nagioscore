@@ -13,7 +13,7 @@
     src: "{{ ansible_facts['os_family'] }}/httpd/{{ apache.config_file }}"
     dest: "{{ apache.sites_folder }}/{{ apache.config_file }}"
     mode: "0644"
-  notify: restart apache
+  notify: Restart apache
 
 - name: Deploy certificate key file
   ansible.builtin.copy:
@@ -22,7 +22,7 @@
     owner: root
     group: root
     mode: "0644"
-  notify: restart apache
+  notify: Restart apache
   no_log: true
   diff: false
 
@@ -33,7 +33,7 @@
     owner: root
     group: root
     mode: "0644"
-  notify: restart apache
+  notify: Restart apache
   diff: false
 
 - name: Deploy apache default configuration
@@ -41,13 +41,13 @@
     src: "{{ ansible_facts['os_family'] }}/httpd/{{ apache.default_file }}"
     dest: "{{ apache.config_ssl_folder }}/{{ apache.default_file }}"
     mode: "0644"
-  notify: restart apache
+  notify: Restart apache
 
 - name: Enable apache modules
   ansible.builtin.command:
     cmd: a2enmod {{ item }}
   register: ansible_nagioscore_apache_module
-  notify: restart apache
+  notify: Restart apache
   failed_when: >
     ansible_nagioscore_apache_module.stderr is defined and
     ((ansible_nagioscore_apache_module.stderr | length > 0) or

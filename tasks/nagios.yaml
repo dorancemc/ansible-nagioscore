@@ -26,7 +26,7 @@
     owner: "{{ nagios.user }}"
     group: "{{ nagios.group }}"
     mode: "0664"
-  notify: reload nagios
+  notify: Reload nagios
 
 - name: Create nagios config files
   ansible.builtin.template:
@@ -34,7 +34,7 @@
     dest: "{{ nagios.etc_path }}/{{ item }}"
     backup: true
     mode: "0664"
-  notify: reload nagios
+  notify: Reload nagios
   loop:
     - cgi.cfg
     - nagios.cfg
