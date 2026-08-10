@@ -2,4 +2,4 @@
 - hosts: all
   become: true
   roles:
-    - role: ../../ansible-nagioscore
+    - role: ../../ansible_nagioscore

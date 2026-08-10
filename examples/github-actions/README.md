@@ -26,8 +26,8 @@ the `INVENTORY` value in each job.
 ```yaml
 ---
 roles:
-  - name: ansible_nagioscore
-    src: https://github.com/dorancemc/ansible-nagioscore
+  - name: dorancemc.ansible_nagioscore
+    src: https://github.com/dorancemc/ansible_nagioscore
     scm: git
     version: v3.0.0
 ```
