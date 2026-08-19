@@ -1,6 +1,9 @@
 # Changelog
 
 All important changes to this role are listed here.
+## [3.0.2] - 2026-08-19
+
+- Added service management, systemd overrides for nagios, and update host definition parsing logic
 
 ## [3.0.1] - 2026-08-09
 

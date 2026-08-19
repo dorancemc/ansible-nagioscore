@@ -97,3 +97,9 @@
     - nagioscore
     - nagioscore-config
   when: nagioscore_config_mode != 'never'
+
+- name: Ensure services are started and enabled
+  ansible.builtin.import_tasks: services.yaml
+  tags:
+    - nagioscore
+    - nagioscore-install

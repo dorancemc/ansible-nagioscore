@@ -1,19 +1,9 @@
 ---
-- name: Include host definition vars
-  ansible.builtin.include_vars:
-    file: "{{ __nagios_host_file }}"
-    name: __host_vars
-  when: __nagios_host_file is defined
-
-- name: Set host definition vars
-  ansible.builtin.set_fact:
-    __host: "{{ __host_vars._host | default('') }}"
-
-- name: Set service definition vars
-  ansible.builtin.set_fact:
-    __services: "{{ __host_vars._services | default('') }}"
 
 - name: Create host definition
+  vars:
+    __host_vars: "{{ lookup('ansible.builtin.file', __nagios_host_file) | from_yaml }}"
+    __host: "{{ __host_vars._host | default({}) }}"
   ansible.builtin.template:
     src: nagios/etc/assets/host_definition.cfg
     dest: "{{ ansible_nagioscore_config_tempfolder.path }}/hosts/{{ __host.host_name }}.cfg"
@@ -22,6 +12,10 @@
   when: __host | length > 0
 
 - name: Create service definition
+  vars:
+    __host_vars: "{{ lookup('ansible.builtin.file', __nagios_host_file) | from_yaml }}"
+    __host: "{{ __host_vars._host | default({}) }}"
+    __services: "{{ __host_vars._services | default({}) }}"
   ansible.builtin.template:
     src: nagios/etc/assets/service_definition.cfg
     dest: "{{ ansible_nagioscore_config_tempfolder.path }}/services/{{ __host.host_name }}.cfg"

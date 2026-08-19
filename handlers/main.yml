@@ -10,6 +10,10 @@
     name: "{{ nagios.service_name }}"
     state: reloaded
 
+- name: Reload systemd daemon
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
 - name: Restart npcd
   ansible.builtin.systemd_service:
     name: npcd

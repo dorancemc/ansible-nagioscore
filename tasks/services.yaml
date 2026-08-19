@@ -1,0 +1,12 @@
+---
+- name: Ensure apache, nagios and npcd services are started and enabled
+  ansible.builtin.service:
+    name: "{{ __nagioscore_svc }}"
+    state: started
+    enabled: true
+  loop:
+    - "{{ apache.service_name }}"
+    - "{{ nagios.service_name }}"
+    - npcd
+  loop_control:
+    loop_var: __nagioscore_svc

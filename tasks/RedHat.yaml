@@ -69,3 +69,19 @@
   ansible.builtin.dnf:
     name: "{{ rrdtool_packages }}"
     state: present
+
+- name: Create nagios systemd override directory
+  ansible.builtin.file:
+    path: /etc/systemd/system/nagios.service.d
+    state: directory
+    mode: "0755"
+
+- name: Ensure nagios service has ExecReload set
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/nagios.service.d/override.conf
+    content: |
+      [Service]
+      ExecReload=/bin/kill -HUP $MAINPID
+    mode: "0644"
+  register: __nagioscore_service_override
+  notify: Reload systemd daemon
