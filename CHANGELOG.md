@@ -7,6 +7,7 @@ All important changes to this role are listed here.
 - Added `nagios_base_path` variable and implement dynamic loading of shared monitoring objects from inventory
 - Replace direct variable loading with task-based dynamic discovery for monitoring objects and remove legacy user configurations
 - Prevent overwriting existing apache configuration files by setting force to false
+- Added support for installing custom Nagios plugins via external URLs
 
 ## [3.0.1] - 2026-08-09
 

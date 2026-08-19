@@ -1,0 +1,18 @@
+---
+- name: Install packages required by the extra plugins
+  ansible.builtin.package:
+    name: whois
+    state: present
+
+- name: Install extra plugins
+  ansible.builtin.get_url:
+    url: "{{ __nagios_plugin.value.url }}"
+    dest: "{{ nagios.plugins_path }}/{{ __nagios_plugin.key }}"
+    checksum: "{{ __nagios_plugin.value.checksum | default(omit) }}"
+    owner: root
+    group: root
+    mode: "0755"
+  loop: "{{ nagios_extra_plugins | dict2items }}"
+  loop_control:
+    loop_var: __nagios_plugin
+    label: "{{ __nagios_plugin.key }}"
