@@ -35,7 +35,7 @@ nagios_config_parameters_default:
   check_result_path: "{{ nagios.var_spool_path }}/checkresults"
   check_result_reaper_frequency: 10
   check_service_freshness: 1
-  command_file: "{{ nagios.var_spool_path }}/nagios.cmd"
+  command_file: "{{ nagios.command_file }}"
   daemon_dumps_core: 0
   date_format: us
   debug_file: "{{ nagios.var_log_path }}/nagios.debug"

@@ -13,6 +13,7 @@ nagios:
   html_shared_path: /usr/share/nagios4/htdocs
   passwd_file: /etc/nagios4/htpasswd.users
   var_spool_path: /var/lib/nagios4
+  command_file: /var/lib/nagios4/rw/nagios.cmd
   lock_file: /var/run/nagios4/nagios4.pid
   var_log_path: /var/log/nagios4
   etc_path: /etc/nagios4

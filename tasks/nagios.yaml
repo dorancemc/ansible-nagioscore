@@ -7,7 +7,11 @@
 
 - name: Add users to htpasswd file
   ansible.builtin.include_tasks: nagios_httpasswd.yaml
-  loop: "{{ nagios_contacts | dict2items | map(attribute='key') | list }}"
+  loop: >-
+    {{ nagios_contacts | dict2items
+       | selectattr('value.password', 'defined')
+       | rejectattr('value.password', 'equalto', '')
+       | map(attribute='key') | list }}
   loop_control:
     loop_var: __contact
 
