@@ -1,9 +1,4 @@
 ---
-- name: Install packages required by the extra plugins
-  ansible.builtin.package:
-    name: whois
-    state: present
-
 - name: Install extra plugins
   ansible.builtin.get_url:
     url: "{{ __nagios_plugin.value.url }}"

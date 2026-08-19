@@ -2,8 +2,8 @@
 nagios_hosts_path: files/nagios/nagios_hosts
 nagios_base_path: ""
 nagios_extra_plugins: {}
-# check_expiration.sh:
-#   url: https://raw.githubusercontent.com/<owner>/<repo>/<commit-sha>/check_expiration.sh
+# check_domain_expiration.py:
+#   url: https://raw.githubusercontent.com/<owner>/<repo>/<commit-sha>/check_domain_expiration.py
 #   checksum: sha256:<hex>
 
 nagios_host_template_default: server
