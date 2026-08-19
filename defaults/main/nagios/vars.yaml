@@ -1,5 +1,6 @@
 ---
 nagios_hosts_path: files/nagios/nagios_hosts
+nagios_base_path: ""
 nagios_host_template_default: server
 nagios_service_template_default: generic-service
 

@@ -16,6 +16,20 @@
     - nagioscore-nrdp-config
     - nagioscore-pnp4nagios
 
+- name: Load shared monitoring objects from inventory
+  ansible.builtin.include_vars:
+    dir: "{{ nagios_base_path }}"
+    extensions: [yaml, yml]
+  when: nagios_base_path | length > 0
+  tags:
+    - nagioscore
+    - nagioscore-apache-config
+    - nagioscore-config
+    - nagioscore-install
+    - nagioscore-nrdp
+    - nagioscore-nrdp-config
+    - nagioscore-pnp4nagios
+
 - name: Install OS packages
   ansible.builtin.import_tasks: install-os.yml
   tags:

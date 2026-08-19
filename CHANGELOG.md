@@ -4,6 +4,7 @@ All important changes to this role are listed here.
 ## [3.0.2] - 2026-08-19
 
 - Added service management, systemd overrides for nagios, and update host definition parsing logic
+- Added `nagios_base_path` variable and implement dynamic loading of shared monitoring objects from inventory
 
 ## [3.0.1] - 2026-08-09
 
