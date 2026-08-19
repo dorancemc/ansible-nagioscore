@@ -6,16 +6,7 @@ nagios_contacts:
     use: none-notifications
     password: "{{ nagiosadmin_password }}"
     contactgroups: admins
-  rouser@gmail.com:  # user and email as defined equal
-    alias: ReadOnly User
-    use: generic-contact
-    contactgroups: agents
-    password: "{{ rouser_password }}"
-  deluser:
-    alias: User2Delete
-    state: absent
 
 nagios_contactgroup:
   admins:
     alias: Nagios Admins
-  agents: []

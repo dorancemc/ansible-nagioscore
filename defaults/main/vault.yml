@@ -1,5 +1,4 @@
 ---
 nagiosadmin_password: "{{ vault_nagiosadmin_password | default('') }}"
-rouser_password: "{{ vault_rouser_password | default('') }}"
 nrdp_mysecrettoken: "{{ vault_nrdp_mysecrettoken | default('') }}"
 nrdp_myothertoken: "{{ vault_nrdp_myothertoken | default('') }}"
