@@ -1,8 +1,8 @@
 # Nagios Core
 
-Deploy and configure Nagios Core with Apache, optional NRDP and PNP4Nagios, and monitoring object definitions.
+Install and configure Nagios Core with Apache, optional NRDP and PNP4Nagios.
 
-By default the role writes the base monitoring objects only where nothing exists yet, so it can share a server with another role that owns the configuration.
+This role installs the engine, it does not manage monitoring objects. Hosts, services, contacts, groups and templates belong to [`ansible_nagiosconfig`](https://github.com/dorancemc/ansible_nagiosconfig), which writes them into the `cfg_dir` directories declared here. The role ships a `bootstrap.cfg` with one self-contained host, service, timeperiod and check command, so a fresh install passes `nagios -v` and starts with no other objects present. The perfdata processing commands that `nagios.cfg` references belong to `ansible_nagiosconfig`: Nagios does not check them at pre-flight, so the engine starts without them, but performance data is not processed until that role runs.
 
 ## Requirements
 
@@ -32,16 +32,12 @@ Apply the full role:
 ansible-playbook --limit nagios playbook.yml --tags nagioscore
 ```
 
-Apply configuration only:
-
-```bash
-ansible-playbook --limit nagios playbook.yml --tags nagioscore-config
-```
-
-Tags: `nagioscore`, `nagioscore-install`, `nagioscore-config`, `nagioscore-apache-config`, `nagioscore-nrdp`, `nagioscore-nrdp-config`, `nagioscore-pnp4nagios`.
+Tags: `nagioscore`, `nagioscore-install`, `nagioscore-apache-config`, `nagioscore-nrdp`, `nagioscore-nrdp-config`, `nagioscore-pnp4nagios`.
 
 ## Variables
 
 Variables and their default values live in `defaults/`. They are not repeated here.
+
+Web interface users live in `nagioscore_htpasswd_users`, a dict of `user: {password, state}` that owns the Apache `AuthUserFile`. It is independent of the Nagios contact objects, which belong to `ansible_nagiosconfig`.
 
 Credentials come from inventory vault variables: `vault_nagiosadmin_password`, `vault_rouser_password`, `vault_nrdp_mysecrettoken` and `vault_nrdp_myothertoken`.

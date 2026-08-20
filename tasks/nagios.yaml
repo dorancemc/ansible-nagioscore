@@ -8,7 +8,7 @@
 - name: Add users to htpasswd file
   ansible.builtin.include_tasks: nagios_httpasswd.yaml
   loop: >-
-    {{ nagios_contacts | dict2items
+    {{ nagioscore_htpasswd_users | dict2items
        | selectattr('value.password', 'defined')
        | rejectattr('value.password', 'equalto', '')
        | map(attribute='key') | list }}
@@ -40,6 +40,7 @@
     mode: "0664"
   notify: Reload nagios
   loop:
+    - bootstrap.cfg
     - cgi.cfg
     - nagios.cfg
 

@@ -10,18 +10,6 @@
   tags:
     - nagioscore
     - nagioscore-apache-config
-    - nagioscore-config
-    - nagioscore-install
-    - nagioscore-nrdp
-    - nagioscore-nrdp-config
-    - nagioscore-pnp4nagios
-
-- name: Load monitoring objects from inventory
-  ansible.builtin.import_tasks: monitoring_objects.yaml
-  tags:
-    - nagioscore
-    - nagioscore-apache-config
-    - nagioscore-config
     - nagioscore-install
     - nagioscore-nrdp
     - nagioscore-nrdp-config
@@ -61,10 +49,10 @@
 - name: Assert nagiosadmin password is set
   ansible.builtin.assert:
     that:
-      - nagios_contacts.nagiosadmin.password is defined
-      - nagios_contacts.nagiosadmin.password | length > 0
+      - nagioscore_htpasswd_users.nagiosadmin.password is defined
+      - nagioscore_htpasswd_users.nagiosadmin.password | length > 0
     fail_msg: >-
-      nagios_contacts.nagiosadmin.password is empty. Set vault_nagiosadmin_password
+      nagioscore_htpasswd_users.nagiosadmin.password is empty. Set vault_nagiosadmin_password
       in your inventory vault or the htpasswd file will never be created and
       Apache will 500 on every request (AuthUserFile missing).
   tags:
@@ -107,13 +95,6 @@
     - nagioscore-install
     - nagioscore-pnp4nagios
   when: install_pnp4nagios | bool
-
-- name: Configure nagios monitoring objects
-  ansible.builtin.import_tasks: nagios_config.yaml
-  tags:
-    - nagioscore
-    - nagioscore-config
-  when: nagioscore_config_mode != 'never'
 
 - name: Ensure services are started and enabled
   ansible.builtin.import_tasks: services.yaml

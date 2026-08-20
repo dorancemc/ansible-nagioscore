@@ -66,7 +66,7 @@ It runs three jobs in order:
 
 Inputs: pick the environment, and optionally set `limit` to a few hosts or `tags`
 to a part of the role. The role tags are `nagioscore`, `nagioscore-install`,
-`nagioscore-config`, `nagioscore-apache-config`, `nagioscore-nrdp`,
+`nagioscore-apache-config`, `nagioscore-nrdp`,
 `nagioscore-nrdp-config` and `nagioscore-pnp4nagios`.
 
 ## Notes

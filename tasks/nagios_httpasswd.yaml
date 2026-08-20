@@ -6,44 +6,44 @@
 
 - name: Verify htpasswd user password
   ansible.builtin.command:
-    cmd: htpasswd -vb "{{ nagios.passwd_file }}" "{{ __contact }}" "{{ nagios_contacts[__contact]['password'] }}"
+    cmd: htpasswd -vb "{{ nagios.passwd_file }}" "{{ __contact }}" "{{ nagioscore_htpasswd_users[__contact]['password'] }}"
   register: __nagios_htpasswd_verify
   changed_when: false
   failed_when: false
   no_log: true
   diff: false
   when:
-    - nagios_contacts[__contact]['password'] is defined
-    - nagios_contacts[__contact]['password'] | length > 0
-    - (nagios_contacts[__contact]['state'] | default('present')) == 'present'
+    - nagioscore_htpasswd_users[__contact]['password'] is defined
+    - nagioscore_htpasswd_users[__contact]['password'] | length > 0
+    - (nagioscore_htpasswd_users[__contact]['state'] | default('present')) == 'present'
     - __nagios_htpasswd_file.stat.exists
 
 - name: Create htpasswd file with user
   ansible.builtin.command:
-    cmd: htpasswd -cb "{{ nagios.passwd_file }}" "{{ __contact }}" "{{ nagios_contacts[__contact]['password'] }}"
+    cmd: htpasswd -cb "{{ nagios.passwd_file }}" "{{ __contact }}" "{{ nagioscore_htpasswd_users[__contact]['password'] }}"
   register: __nagios_htpasswd_create
   changed_when: __nagios_htpasswd_create.rc == 0
   failed_when: __nagios_htpasswd_create.rc != 0
   no_log: true
   diff: false
   when:
-    - nagios_contacts[__contact]['password'] is defined
-    - nagios_contacts[__contact]['password'] | length > 0
-    - (nagios_contacts[__contact]['state'] | default('present')) == 'present'
+    - nagioscore_htpasswd_users[__contact]['password'] is defined
+    - nagioscore_htpasswd_users[__contact]['password'] | length > 0
+    - (nagioscore_htpasswd_users[__contact]['state'] | default('present')) == 'present'
     - not __nagios_htpasswd_file.stat.exists
 
 - name: Add or update htpasswd user
   ansible.builtin.command:
-    cmd: htpasswd -b "{{ nagios.passwd_file }}" "{{ __contact }}" "{{ nagios_contacts[__contact]['password'] }}"
+    cmd: htpasswd -b "{{ nagios.passwd_file }}" "{{ __contact }}" "{{ nagioscore_htpasswd_users[__contact]['password'] }}"
   register: __nagios_htpasswd_update
   changed_when: __nagios_htpasswd_update.rc == 0
   failed_when: __nagios_htpasswd_update.rc != 0
   no_log: true
   diff: false
   when:
-    - nagios_contacts[__contact]['password'] is defined
-    - nagios_contacts[__contact]['password'] | length > 0
-    - (nagios_contacts[__contact]['state'] | default('present')) == 'present'
+    - nagioscore_htpasswd_users[__contact]['password'] is defined
+    - nagioscore_htpasswd_users[__contact]['password'] | length > 0
+    - (nagioscore_htpasswd_users[__contact]['state'] | default('present')) == 'present'
     - __nagios_htpasswd_file.stat.exists
     - __nagios_htpasswd_verify.rc != 0
 
@@ -56,9 +56,9 @@
   no_log: true
   diff: false
   when:
-    - nagios_contacts[__contact]['password'] is defined
-    - nagios_contacts[__contact]['password'] | length > 0
-    - (nagios_contacts[__contact]['state'] | default('present')) == 'absent'
+    - nagioscore_htpasswd_users[__contact]['password'] is defined
+    - nagioscore_htpasswd_users[__contact]['password'] | length > 0
+    - (nagioscore_htpasswd_users[__contact]['state'] | default('present')) == 'absent'
     - __nagios_htpasswd_file.stat.exists
 
 - name: Set htpasswd file ownership

@@ -1,6 +1,12 @@
 # Changelog
 
 All important changes to this role are listed here.
+## [4.0.0] - 2026-08-20
+
+- **Breaking: monitoring objects moved out of this role.** Hosts, services, contacts, contactgroups, hostgroups, servicegroups, commands and all object templates are now owned by [`ansible_nagiosconfig`](https://github.com/dorancemc/ansible_nagiosconfig), which supports both Nagios Core and Nagios XI from the same data. Removed: the `nagioscore-config` tag, the `nagios_contacts`, `nagios_contactgroup`, `nagios_hostgroups`, `nagios_servicegroups`, `nagios_commands_definition`, `nagios_*_templates`, `nagios_timeperiods`, `nagios_base_path`, `nagios_hosts_path`, `nagios_clean_assets` and `nagioscore_config_mode` variables, and the object templates under `templates/nagios/etc/{assets,templates}`. `nagios.cfg`, `cgi.cfg`, `resource.cfg` and the `cfg_dir` directories stay here.
+- **Breaking: the htpasswd file has its own variable.** Web users come from `nagioscore_htpasswd_users` (`user: {password, state}`) instead of the password field of `nagios_contacts`. Apache and its `AuthUserFile` are owned by this role, the contact objects are not.
+- **New `bootstrap.cfg`.** One self-contained host, service, timeperiod and check command, so a fresh install with no objects still passes `nagios -v` and starts. It lives outside the directories `ansible_nagiosconfig` owns, so its `rsync --delete` never removes it. The perfdata processing commands stay in `ansible_nagiosconfig` — defining them here too would be a duplicate definition, and Nagios does not validate them at pre-flight.
+
 ## [3.0.2] - 2026-08-19
 
 - Added service management, systemd overrides for nagios, and update host definition parsing logic

@@ -1,30 +1,10 @@
 ---
-nagios_hosts_path: files/nagios/nagios_hosts
-nagios_base_path: ""
 nagios_extra_plugins: {}
 # check_domain_expiration.py:
 #   url: https://raw.githubusercontent.com/<owner>/<repo>/<commit-sha>/check_domain_expiration.py
 #   checksum: sha256:<hex>
 
-nagios_host_template_default: server
-nagios_service_template_default: generic-service
-
-# if you has deleted one host, then you need to put here true to
-# clean all files in assets folder and delete the hosts not defined
-nagios_clean_assets: false
 pnp4nagios_force_reinstall: false
-
-# once   write the base monitoring objects only where nothing exists yet
-# always this role owns the monitoring objects and overwrites them
-# never  another role owns the monitoring objects, do not touch them
-nagioscore_config_mode: once
-
-nagios_hostgroups:  # []
-  local: []
-  cloud: []
-
-nagios_servicegroups:  # []
-  localresources: []
 
 install_pnp4nagios: true
 install_nrdp: true
