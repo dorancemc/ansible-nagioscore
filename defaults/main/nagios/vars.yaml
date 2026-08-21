@@ -1,9 +1,4 @@
 ---
-nagios_extra_plugins: {}
-# check_domain_expiration.py:
-#   url: https://raw.githubusercontent.com/<owner>/<repo>/<commit-sha>/check_domain_expiration.py
-#   checksum: sha256:<hex>
-
 pnp4nagios_force_reinstall: false
 
 install_pnp4nagios: true

@@ -2,7 +2,7 @@
 
 Install and configure Nagios Core with Apache, optional NRDP and PNP4Nagios.
 
-This role installs the engine, it does not manage monitoring objects. Hosts, services, contacts, groups and templates belong to [`ansible_nagiosconfig`](https://github.com/dorancemc/ansible_nagiosconfig), which writes them into the `cfg_dir` directories declared here. The role ships a `bootstrap.cfg` with one self-contained host, service, timeperiod and check command, so a fresh install passes `nagios -v` and starts with no other objects present. The perfdata processing commands that `nagios.cfg` references belong to `ansible_nagiosconfig`: Nagios does not check them at pre-flight, so the engine starts without them, but performance data is not processed until that role runs.
+This role installs the engine, it does not manage monitoring objects. Hosts, services, contacts, groups and templates belong to [`ansible_nagiosconfig`](https://github.com/dorancemc/ansible_nagiosconfig), which writes them into the `cfg_dir` directories declared here. The role ships a `bootstrap.cfg` with one self-contained host, service, contact, contactgroup, timeperiod and check command, so a fresh install passes `nagios -v` and starts with no other objects present. The perfdata processing commands that `nagios.cfg` references belong to `ansible_nagiosconfig`: Nagios does not check them at pre-flight, so the engine starts without them, but performance data is not processed until that role runs.
 
 ## Requirements
 

@@ -65,12 +65,6 @@
     - nagioscore
     - nagioscore-install
 
-- name: Install extra plugins
-  ansible.builtin.import_tasks: extra_plugins.yaml
-  tags:
-    - nagioscore
-    - nagioscore-install
-
 - name: Install nrdp
   ansible.builtin.import_tasks: nagios_nrdp-install.yaml
   tags:
